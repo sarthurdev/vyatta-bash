@@ -1,3 +1,13 @@
+bash (4.4.18-2) unstable; urgency=medium
+
+  * Revert the changes from the last upload.
+  * Configure the normal build --without-bash-malloc as well.
+    See http://lists.nongnu.org/archive/html/qemu-devel/2018-03/msg04700.html
+    for the qemu fix.  Closes: #865599. LP: #1751011.
+  * Apply upstream patch 019.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 04 Apr 2018 20:04:48 +0200
+
 bash (4.4.18-1.1) unstable; urgency=high
 
   * Non-maintainer upload.
