@@ -4,7 +4,7 @@ Index: b/doc/bash.1
 ===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -3460,6 +3460,10 @@ If the shell option
+@@ -3543,6 +3543,10 @@ If the shell option
  .B nocaseglob
  is enabled, the match is performed without regard to the case
  of alphabetic characters.

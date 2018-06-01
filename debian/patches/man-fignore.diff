@@ -4,7 +4,7 @@ Index: b/doc/bash.1
 ===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -2045,7 +2045,9 @@ A filename whose suffix matches one of t
+@@ -2106,7 +2106,9 @@ A filename whose suffix matches one of t
  is excluded from the list of matched filenames.
  A sample value is
  .if t \f(CW".o:~"\fP.

@@ -4,7 +4,7 @@ Index: b/bashline.c
 ===================================================================
 --- a/bashline.c
 +++ b/bashline.c
-@@ -936,8 +936,8 @@ operate_and_get_next (count, c)
+@@ -927,8 +927,8 @@ operate_and_get_next (count, c)
     command being entered (if no explicit argument is given), otherwise on
     a command from the history file. */
  
@@ -19,7 +19,7 @@ Index: b/builtins/fc.def
 ===================================================================
 --- a/builtins/fc.def
 +++ b/builtins/fc.def
-@@ -165,11 +165,11 @@ set_verbose_flag ()
+@@ -161,11 +161,11 @@ set_verbose_flag ()
  }
  
  /* String to execute on a file that we want to edit. */

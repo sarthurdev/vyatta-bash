@@ -94,7 +94,8 @@ build-indep: build
 
 before-build:
 	dh_testdir
-	dh_update_autotools_config
+#	dh_update_autotools_config
+	dh_autotools-dev_updateconfig
 	mkdir -p stamps
 	: # see #327477, needed to have HAVE_DEV_STDIN defined
 	(test -d /dev/fd && test -r /dev/stdin < /dev/null) \
@@ -168,6 +169,7 @@ clean:
 	rm -f debian/README.Debian
 	rm -rf locales
 	rm -f clear_console
+	dh_autotools-dev_restoreconfig
 	dh_clean
 
 preinst-build: debian/bash.preinst

@@ -6,7 +6,7 @@ Index: b/doc/bash.1
 --- a/doc/bash.1
 +++ b/doc/bash.1
 @@ -8,6 +8,22 @@
- .\"	Last Change: Fri Aug 26 09:45:10 EDT 2016
+ .\"	Last Change: Thu Mar 15 11:30:03 EDT 2018
  .\"
  .\" bash_builtins, strip all but Built-Ins section
 +.de zZ
@@ -27,7 +27,7 @@ Index: b/doc/bash.1
 +.if !rzY .nr zY 0 \" avoid a warning about an undefined register
  .if \n(zZ=1 .ig zZ
  .if \n(zY=1 .ig zY
- .TH BASH 1 "2016 August 26" "GNU Bash 4.4"
+ .TH BASH 1 "2018 March 15" "GNU Bash 5.0"
 @@ -36,13 +52,6 @@
  .el \\*(]X\h|\\n()Iu+\\n()Ru\c
  .}f
@@ -42,7 +42,7 @@ Index: b/doc/bash.1
  .SH NAME
  bash \- GNU Bourne-Again SHell
  .SH SYNOPSIS
-@@ -2339,8 +2348,8 @@ and is set by the administrator who inst
+@@ -2400,8 +2409,8 @@ and is set by the administrator who inst
  .BR bash .
  A common value is
  .na

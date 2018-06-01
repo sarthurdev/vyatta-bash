@@ -29,7 +29,7 @@ Index: b/config-top.h
 ===================================================================
 --- a/config-top.h
 +++ b/config-top.h
-@@ -87,20 +87,20 @@
+@@ -91,20 +91,20 @@
  #define DEFAULT_BASHRC "~/.bashrc"
  
  /* System-wide .bashrc file for interactive shells. */

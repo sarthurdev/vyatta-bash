@@ -2,7 +2,7 @@ Index: b/doc/bash.1
 ===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -3787,6 +3787,10 @@ A failure to open or create a file cause
+@@ -3890,6 +3890,10 @@ A failure to open or create a file cause
  Redirections using file descriptors greater than 9 should be used with
  care, as they may conflict with file descriptors the shell uses
  internally.
@@ -17,7 +17,7 @@ Index: b/doc/bashref.texi
 ===================================================================
 --- a/doc/bashref.texi
 +++ b/doc/bashref.texi
-@@ -2631,6 +2631,9 @@ Redirections using file descriptors grea
+@@ -2717,6 +2717,9 @@ Redirections using file descriptors grea
  care, as they may conflict with file descriptors the shell uses
  internally.
  

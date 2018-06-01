@@ -4,9 +4,9 @@ Index: b/doc/bash.1
 ===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -130,6 +130,12 @@ processing, then commands are read from
- This option allows the positional parameters to be set
- when invoking an interactive shell.
+@@ -131,6 +131,12 @@ This option allows the positional parame
+ when invoking an interactive shell or when reading input
+ through a pipe.
  .TP
 +.B \-v
 +Print shell input lines as they are read.
