@@ -1,0 +1,50 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.4
+Patch-ID:	bash44-021
+
+Bug-Reported-by:	werner@suse.de
+Bug-Reference-ID:	<201803281402.w2SE2VOa000476@noether.suse.de>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2018-03/msg00196.html
+
+Bug-Description:
+
+A SIGINT received inside a SIGINT trap handler can possibly cause the
+shell to loop.
+
+Index: b/jobs.c
+===================================================================
+--- a/jobs.c
++++ b/jobs.c
+@@ -2689,7 +2689,17 @@ wait_for (pid)
+   wait_sigint_received = child_caught_sigint = 0;
+   if (job_control == 0 || (subshell_environment&SUBSHELL_COMSUB))
+     {
+-      old_sigint_handler = set_signal_handler (SIGINT, wait_sigint_handler);
++      SigHandler *temp_sigint_handler;
++
++      temp_sigint_handler = set_signal_handler (SIGINT, wait_sigint_handler);
++      if (temp_sigint_handler == wait_sigint_handler)
++        {
++#if defined (DEBUG)
++	  internal_warning ("wait_for: recursively setting old_sigint_handler to wait_sigint_handler: running_trap = %d", running_trap);
++#endif
++        }
++      else
++	old_sigint_handler = temp_sigint_handler;
+       waiting_for_child = 0;
+       if (old_sigint_handler == SIG_IGN)
+ 	set_signal_handler (SIGINT, old_sigint_handler);
+Index: b/patchlevel.h
+===================================================================
+--- a/patchlevel.h
++++ b/patchlevel.h
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 20
++#define PATCHLEVEL 21
+ 
+ #endif /* _PATCHLEVEL_H_ */

@@ -1,0 +1,49 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.4
+Patch-ID:	bash44-023
+
+Bug-Reported-by:	Martijn Dekker <martijn@inlv.org>
+Bug-Reference-ID:	<5326d6b9-2625-1d32-3e6e-ad1d15462c09@inlv.org>
+Bug-Reference-URL:	http://lists.gnu.org/archive/html/bug-bash/2016-11/msg00041.html
+
+Bug-Description:
+
+When sourcing a file from an interactive shell, setting the SIGINT handler
+to the default and typing ^C will cause the shell to exit.
+
+Index: b/builtins/trap.def
+===================================================================
+--- a/builtins/trap.def
++++ b/builtins/trap.def
+@@ -98,6 +98,7 @@ static int display_traps __P((WORD_LIST
+ #define IGNORE 2		/* Ignore this signal. */
+ 
+ extern int posixly_correct, subshell_environment;
++extern int sourcelevel, running_trap;
+ 
+ int
+ trap_builtin (list)
+@@ -212,6 +213,9 @@ trap_builtin (list)
+ 			   was SIG_IGN? */
+ 			if (interactive)
+ 			  set_signal_handler (SIGINT, sigint_sighandler);
++			/* special cases for interactive == 0 */
++			else if (interactive_shell && (sourcelevel||running_trap))
++			  set_signal_handler (SIGINT, sigint_sighandler);
+ 			else
+ 			  set_signal_handler (SIGINT, termsig_sighandler);
+ 			break;
+Index: b/patchlevel.h
+===================================================================
+--- a/patchlevel.h
++++ b/patchlevel.h
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 22
++#define PATCHLEVEL 23
+ 
+ #endif /* _PATCHLEVEL_H_ */

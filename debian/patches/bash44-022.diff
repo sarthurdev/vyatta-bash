@@ -1,0 +1,50 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	4.4
+Patch-ID:	bash44-022
+
+Bug-Reported-by:	Nuzhna Pomoshch <nuzhna_pomoshch@yahoo.com>
+Bug-Reference-ID:	<1317167476.1492079.1495999776464@mail.yahoo.com>
+Bug-Reference-URL:	https://lists.gnu.org/archive/html/bug-readline/2017-05/msg00005.html
+
+Bug-Description:
+
+There are cases where a failing readline command (e.g., delete-char at the end
+of a line) can cause a multi-character key sequence to `back up' and attempt
+to re-read some of the characters in the sequence.
+
+Index: b/lib/readline/readline.c
+===================================================================
+--- a/lib/readline/readline.c
++++ b/lib/readline/readline.c
+@@ -1057,7 +1057,7 @@ _rl_subseq_result (r, map, key, got_subs
+ 	/* We probably shadowed a keymap, so keep going. */
+ 	r = _rl_dispatch (ANYOTHERKEY, m);
+     }
+-  else if (r && map[ANYOTHERKEY].function)
++  else if (r < 0 && map[ANYOTHERKEY].function)
+     {
+       /* We didn't match (r is probably -1), so return something to
+ 	 tell the caller that it should try ANYOTHERKEY for an
+@@ -1069,7 +1069,7 @@ _rl_subseq_result (r, map, key, got_subs
+       _rl_dispatching_keymap = map;
+       return -2;
+     }
+-  else if (r && got_subseq)
++  else if (r < 0 && got_subseq)		/* XXX */
+     {
+       /* OK, back up the chain. */
+       if (RL_ISSTATE (RL_STATE_MACROINPUT))
+Index: b/patchlevel.h
+===================================================================
+--- a/patchlevel.h
++++ b/patchlevel.h
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 21
++#define PATCHLEVEL 22
+ 
+ #endif /* _PATCHLEVEL_H_ */
