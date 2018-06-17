@@ -1,3 +1,11 @@
+bash (4.4.18-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Move man2html dependency to B-D-I and use the thinner -base variant.
+    Closes: #889757.
+
+ -- Helmut Grohne <helmut@subdivi.de>  Sun, 17 Jun 2018 21:15:06 +0200
+
 bash (4.4.18-3) unstable; urgency=medium
 
   * Apply upstream patches 020 - 023. Fixing:
