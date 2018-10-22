@@ -1,3 +1,9 @@
+bash (5.0~beta1-1) experimental; urgency=medium
+
+  * New upstream beta release.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 22 Oct 2018 16:06:36 +0200
+
 bash (5.0~alpha1-1) experimental; urgency=medium
 
   * New upstream alpha release.

@@ -2,7 +2,7 @@ Source: bash
 Section: base
 Priority: required
 Maintainer: Matthias Klose <doko@debian.org>
-Standards-Version: 4.1.4
+Standards-Version: 4.2.1
 Build-Depends: autoconf, autotools-dev, bison, libncurses5-dev,
  texinfo, texi2html, debhelper (>= 9.20160115~), gettext, sharutils,
  locales <!nocheck>, time <!nocheck>,

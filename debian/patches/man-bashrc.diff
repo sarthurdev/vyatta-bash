@@ -54,7 +54,7 @@ Index: b/doc/bash.1
  It will not do this if invoked as \fBsh\fP.
  The
  .B \-\-norc
-@@ -10829,6 +10836,9 @@ The \fBbash\fP executable
+@@ -10866,6 +10873,9 @@ The \fBbash\fP executable
  .FN /etc/profile
  The systemwide initialization file, executed for login shells
  .TP
