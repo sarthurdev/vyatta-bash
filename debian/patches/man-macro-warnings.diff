@@ -1,12 +1,10 @@
 # DP: Move definition of the macro "FN" out of the region of the "ig"
 # DP: macro.  Define macros and registers "zZ" and "zY".
 
-Index: b/doc/bash.1
-===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
 @@ -8,6 +8,22 @@
- .\"	Last Change: Tue Aug  7 12:01:07 EDT 2018
+ .\"	Last Change: Mon Oct 22 09:55:27 EDT 2018
  .\"
  .\" bash_builtins, strip all but Built-Ins section
 +.de zZ
@@ -27,7 +25,7 @@ Index: b/doc/bash.1
 +.if !rzY .nr zY 0 \" avoid a warning about an undefined register
  .if \n(zZ=1 .ig zZ
  .if \n(zY=1 .ig zY
- .TH BASH 1 "2018 August 7" "GNU Bash 5.0"
+ .TH BASH 1 "2018 October 22" "GNU Bash 5.0"
 @@ -36,13 +52,6 @@
  .el \\*(]X\h|\\n()Iu+\\n()Ru\c
  .}f

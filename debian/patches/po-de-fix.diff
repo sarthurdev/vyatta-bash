@@ -1,10 +1,8 @@
-Index: b/po/de.po
-===================================================================
 --- a/po/de.po
 +++ b/po/de.po
-@@ -2846,7 +2846,7 @@ msgid ""
- msgstr ""
- "Führt ein einfaches Kommando aus oder zeigt Informationen über Kommandos an.\n"
+@@ -2985,7 +2985,7 @@ msgstr ""
+ "Führt ein einfaches Kommando aus oder zeigt Informationen über Kommandos "
+ "an.\n"
  "\n"
 -"    Führt das Kommando mit den angegebeneb Argumenten aus, ohne\n"
 +"    Führt das Kommando mit den angegebenen Argumenten aus, ohne\n"
