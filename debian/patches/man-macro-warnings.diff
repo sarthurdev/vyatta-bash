@@ -4,7 +4,7 @@
 --- a/doc/bash.1
 +++ b/doc/bash.1
 @@ -8,6 +8,22 @@
- .\"	Last Change: Mon Oct 22 09:55:27 EDT 2018
+ .\"	Last Change: Fri Dec  7 09:48:47 EST 2018
  .\"
  .\" bash_builtins, strip all but Built-Ins section
 +.de zZ
@@ -25,11 +25,11 @@
 +.if !rzY .nr zY 0 \" avoid a warning about an undefined register
  .if \n(zZ=1 .ig zZ
  .if \n(zY=1 .ig zY
- .TH BASH 1 "2018 October 22" "GNU Bash 5.0"
+ .TH BASH 1 "2018 December 7" "GNU Bash 5.0"
 @@ -36,13 +52,6 @@
- .el \\*(]X\h|\\n()Iu+\\n()Ru\c
- .}f
- ..
+ .\" .el \\*(]X\h|\\n()Iu+\\n()Ru\c
+ .\" .}f
+ .\" ..
 -.\"
 -.\" File Name macro.  This used to be `.PN', for Path Name,
 -.\" but Sun doesn't seem to like that very much.
@@ -40,7 +40,7 @@
  .SH NAME
  bash \- GNU Bourne-Again SHell
  .SH SYNOPSIS
-@@ -2414,8 +2423,8 @@ and is set by the administrator who inst
+@@ -2417,8 +2426,8 @@ and is set by the administrator who inst
  .BR bash .
  A common value is
  .na

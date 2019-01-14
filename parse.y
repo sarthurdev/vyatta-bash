@@ -418,7 +418,8 @@ inputunit:	simple_list simple_list_terminator
 			  /* EOF after an error.  Do ignoreeof or not.  Really
 			     only interesting in non-interactive shells */
 			  global_command = (COMMAND *)NULL;
-			  last_command_exit_value = 1;
+			  if (last_command_exit_value == 0)
+			    last_command_exit_value = EX_BADUSAGE;	/* force error return */
 			  handle_eof_input_unit ();
 			  if (interactive && parse_and_execute_level == 0)
 			    {
@@ -892,6 +893,16 @@ select_command:	SELECT WORD newline_list DO list DONE
 	|	SELECT WORD newline_list IN word_list list_terminator newline_list '{' list '}'
 			{
 			  $$ = make_select_command ($2, REVERSE_LIST ($5, WORD_LIST *), $9, word_lineno[word_top]);
+			  if (word_top > 0) word_top--;
+			}
+	|	SELECT WORD newline_list IN list_terminator newline_list DO compound_list DONE
+			{
+			  $$ = make_select_command ($2, (WORD_LIST *)NULL, $8, word_lineno[word_top]);
+			  if (word_top > 0) word_top--;
+			}
+	|	SELECT WORD newline_list IN list_terminator newline_list '{' compound_list '}'
+			{
+			  $$ = make_select_command ($2, (WORD_LIST *)NULL, $8, word_lineno[word_top]);
 			  if (word_top > 0) word_top--;
 			}
 	;
@@ -2541,10 +2552,11 @@ next_alias_char:
      return the space that will delimit the token and postpone the pop_string.
      This set of conditions duplicates what used to be in mk_alexpansion ()
      below, with the addition that we don't add a space if we're currently
-     reading a quoted string. */
+     reading a quoted string or in a shell comment. */
 #ifndef OLD_ALIAS_HACK
   if (uc == 0 && pushed_string_list && pushed_string_list->flags != PSH_SOURCE &&
       pushed_string_list->flags != PSH_DPAREN &&
+      (parser_state & PST_COMMENT) == 0 &&
       shell_input_line_index > 0 &&
       shell_input_line[shell_input_line_index-1] != ' ' &&
       shell_input_line[shell_input_line_index-1] != '\n' &&
@@ -3020,7 +3032,11 @@ special_case_tokens (tokstr)
 {
   /* Posix grammar rule 6 */
   if ((last_read_token == WORD) &&
+#if defined (SELECT_COMMAND)
       ((token_before_that == FOR) || (token_before_that == CASE) || (token_before_that == SELECT)) &&
+#else
+      ((token_before_that == FOR) || (token_before_that == CASE)) &&
+#endif
       (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0))
     {
       if (token_before_that == CASE)
@@ -3252,8 +3268,10 @@ itrace("shell_getc: bash_input.location.string = `%s'", bash_input.location.stri
   if MBTEST(character == '#' && (!interactive || interactive_comments))
     {
       /* A comment.  Discard until EOL or EOF, and then return a newline. */
+      parser_state |= PST_COMMENT;
       discard_until ('\n');
       shell_getc (0);
+      parser_state &= ~PST_COMMENT;
       character = '\n';	/* this will take the next if statement and return. */
     }
 
