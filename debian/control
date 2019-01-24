@@ -6,8 +6,8 @@ Standards-Version: 4.3.0
 Build-Depends: autoconf, autotools-dev, bison, libncurses5-dev,
  texinfo, texi2html, debhelper (>= 9.20160115~), gettext, sharutils,
  locales <!nocheck>, time <!nocheck>,
- xz-utils, dpkg-dev (>= 1.16.1), man2html
-Build-Depends-Indep: texlive-latex-base, ghostscript, texlive-fonts-recommended
+ xz-utils, dpkg-dev (>= 1.16.1)
+Build-Depends-Indep: texlive-latex-base, ghostscript, texlive-fonts-recommended, man2html-base
 Build-Conflicts: r-base-core
 Homepage: http://tiswww.case.edu/php/chet/bash/bashtop.html
 Vcs-Browser: https://code.launchpad.net/~doko/+junk/pkg-bash-debian

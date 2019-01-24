@@ -1,3 +1,10 @@
+bash (5.0-2) unstable; urgency=medium
+
+  * Apply upstream patches 001 and 002. Closes: #919439.
+  * Merge back the 4.4.18-3.1 upload. Closes: #889757.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 24 Jan 2019 11:01:16 +0100
+
 bash (5.0-1) unstable; urgency=medium
 
   * New upstream release.
@@ -21,6 +28,31 @@ bash (5.0~alpha1-1) experimental; urgency=medium
   * New upstream alpha release.
 
  -- Matthias Klose <doko@debian.org>  Fri, 01 Jun 2018 20:33:31 +0200
+
+bash (4.4.18-3.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Move man2html dependency to B-D-I and use the thinner -base variant.
+    Closes: #889757.
+
+ -- Helmut Grohne <helmut@subdivi.de>  Sun, 17 Jun 2018 21:15:06 +0200
+
+bash (4.4.18-3) unstable; urgency=medium
+
+  * Apply upstream patches 020 - 023. Fixing:
+    - In circumstances involving long-running scripts that create and reap many
+      processes, it is possible for the hash table bash uses to store exit
+      statuses from asynchronous processes to develop loops. This patch fixes
+      the loop causes and adds code to detect any future loops.
+    - A SIGINT received inside a SIGINT trap handler can possibly cause the
+      shell to loop.
+    - There are cases where a failing readline command (e.g., delete-char at
+      the end of a line) can cause a multi-character key sequence to `back up'
+      and attempt to re-read some of the characters in the sequence.
+    - When sourcing a file from an interactive shell, setting the SIGINT handle
+      to the default and typing ^C will cause the shell to exit.
+
+ -- Matthias Klose <doko@debian.org>  Fri, 01 Jun 2018 21:05:11 +0200
 
 bash (4.4.18-2) unstable; urgency=medium
 
