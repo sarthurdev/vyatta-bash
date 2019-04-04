@@ -31,6 +31,8 @@ else
 endif
 
 ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+  STRIP = :
+else
   ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
     STRIP = $(DEB_HOST_GNU_TYPE)-strip
   else

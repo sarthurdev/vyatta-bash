@@ -1,3 +1,11 @@
+bash (5.0-3) unstable; urgency=medium
+
+  * Apply upstream patch 003.
+  * Fix clear_console locking up video when X is running and logging out
+    from a plain text console. Closes: #810660. LP: #1822184.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 04 Apr 2019 04:30:33 +0200
+
 bash (5.0-2) unstable; urgency=medium
 
   * Apply upstream patches 001 and 002. Closes: #919439.

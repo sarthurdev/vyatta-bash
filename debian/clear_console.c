@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006-2017 Canonical Ltd.
+Copyright (C) 2006-2019 Canonical Ltd.
 
 clear_console and it's man page are free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
@@ -205,7 +205,7 @@ int clear_console(int fd)
 #if defined(__linux__)
   num = vtstat.v_active;
 #endif
-  tmp_num = (num == 1 ? 2 : 1);
+  tmp_num = (num == 6 ? 5 : 6);
 
   /* switch vt to clear the scrollback buffer */
   if (ioctl(fd, VT_ACTIVATE, tmp_num))
