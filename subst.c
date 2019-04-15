@@ -238,6 +238,8 @@ static WORD_LIST *expand_string_leave_quoted __P((char *, int));
 static WORD_LIST *expand_string_for_rhs __P((char *, int, int, int, int *, int *));
 static WORD_LIST *expand_string_for_pat __P((char *, int, int *, int *));
 
+static char *quote_escapes_internal __P((const char *, int));
+
 static WORD_LIST *list_quote_escapes __P((WORD_LIST *));
 static WORD_LIST *list_dequote_escapes __P((WORD_LIST *));
 
@@ -3562,7 +3564,7 @@ expand_arith_string (string, quoted)
     {
       /* This is expanded version of expand_string_internal as it's called by
 	 expand_string_leave_quoted  */
-      td.flags = W_NOPROCSUB;	/* don't want process substitution */
+      td.flags = W_NOPROCSUB|W_NOTILDE;	/* don't want process substitution or tilde expansion */
       td.word = savestring (string);
       list = call_expand_word_internal (&td, quoted, 0, (int *)NULL, (int *)NULL);
       /* This takes care of the calls from expand_string_leave_quoted and
@@ -4027,24 +4029,32 @@ expand_word_leave_quoted (word, quoted)
    code exists in dequote_escapes.  Even if we don't end up splitting on
    spaces, quoting spaces is not a problem.  This should never be called on
    a string that is quoted with single or double quotes or part of a here
-   document (effectively double-quoted). */
-char *
-quote_escapes (string)
+   document (effectively double-quoted).
+   FLAGS says whether or not we are going to split the result. If we are not,
+   and there is a CTLESC or CTLNUL in IFS, we need to quote CTLESC and CTLNUL,
+   respectively, to prevent them from being removed as part of dequoting. */
+static char *
+quote_escapes_internal (string, flags)
      const char *string;
+     int flags;
 {
   const char *s, *send;
   char *t, *result;
   size_t slen;
-  int quote_spaces, skip_ctlesc, skip_ctlnul;
+  int quote_spaces, skip_ctlesc, skip_ctlnul, nosplit;
   DECLARE_MBSTATE; 
 
   slen = strlen (string);
   send = string + slen;
 
   quote_spaces = (ifs_value && *ifs_value == 0);
+  nosplit = (flags & PF_NOSPLIT2);
 
   for (skip_ctlesc = skip_ctlnul = 0, s = ifs_value; s && *s; s++)
-    skip_ctlesc |= *s == CTLESC, skip_ctlnul |= *s == CTLNUL;
+    {
+      skip_ctlesc |= (nosplit == 0 && *s == CTLESC);
+      skip_ctlnul |= (nosplit == 0 && *s == CTLNUL);
+    }
 
   t = result = (char *)xmalloc ((slen * 2) + 1);
   s = string;
@@ -4058,6 +4068,20 @@ quote_escapes (string)
   *t = '\0';
 
   return (result);
+}
+
+char *
+quote_escapes (string)
+     const char *string;
+{
+  return (quote_escapes_internal (string, 0));
+}
+
+char *
+quote_rhs (string)
+     const char *string;
+{
+  return (quote_escapes_internal (string, PF_NOSPLIT2));
 }
 
 static WORD_LIST *
@@ -6661,7 +6685,8 @@ expand_arrayref:
 	  if (temp)
 	    temp = (*temp && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
 		      ? quote_string (temp)
-		      : quote_escapes (temp);
+		      : ((pflags & PF_ASSIGNRHS) ? quote_rhs (temp)
+						 : quote_escapes (temp));
 	}
       else
 	temp = (char *)NULL;
@@ -9567,7 +9592,8 @@ comsub:
 
 	      temp = (*temp && (quoted & (Q_HERE_DOCUMENT|Q_DOUBLE_QUOTES)))
 			? quote_string (temp)
-			: quote_escapes (temp);
+			: ((pflags & PF_ASSIGNRHS) ? quote_rhs (temp)
+						   : quote_escapes (temp));
 	    }
 
 	  free (temp1);
@@ -9903,15 +9929,12 @@ add_string:
 	case '~':
 	  /* If the word isn't supposed to be tilde expanded, or we're not
 	     at the start of a word or after an unquoted : or = in an
-	     assignment statement, we don't do tilde expansion.  If we don't want
-	     tilde expansion when expanding words to be passed to the arithmetic
-	     evaluator, remove the check for Q_ARITH.  Right now, the code
-	     suppresses tilde expansion when expanding in a pure arithmetic
-	     context, but allows it when expanding an array subscript.  This is
-	     for backwards compatibility, but I figure nobody's relying on it */
+	     assignment statement, we don't do tilde expansion.  We don't
+	     do tilde expansion if quoted or in an arithmetic context. */
+
 	  if ((word->flags & (W_NOTILDE|W_DQUOTE)) ||
 	      (sindex > 0 && ((word->flags & W_ITILDE) == 0)) ||
-	      ((quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)) && ((quoted & Q_ARRAYSUB) == 0)))
+	      (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
 	    {
 	      word->flags &= ~W_ITILDE;
 	      if (isexp == 0 && (word->flags & (W_NOSPLIT|W_NOSPLIT2)) == 0 && isifs (c) && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)) == 0)
