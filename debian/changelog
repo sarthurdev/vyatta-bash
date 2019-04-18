@@ -1,3 +1,9 @@
+bash (5.0-4) unstable; urgency=medium
+
+  * wait builtin: avoid hanging on inherited children. Closes: #920455.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 18 Apr 2019 06:12:36 +0200
+
 bash (5.0-3) unstable; urgency=medium
 
   * Apply upstream patch 003.
