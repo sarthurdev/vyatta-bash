@@ -1,6 +1,14 @@
 bash50-001.diff
 bash50-002.diff
 bash50-003.diff
+bash50-004.diff
+bash50-005.diff
+bash50-006.diff
+bash50-007.diff
+bash50-008.diff
+bash50-009.diff
+bash50-010.diff
+bash50-011.diff
 bashbug-editor.diff
 deb-bash-config.diff
 deb-examples.diff
@@ -22,4 +30,3 @@ bzero.diff
 man-macro-warnings.diff
 po-de-fix.diff
 man-vx-opts.diff
-wait-builtin-avoid-hanging-on-inherited-children.diff

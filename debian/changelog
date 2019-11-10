@@ -1,3 +1,10 @@
+bash (5.0-5) unstable; urgency=medium
+
+  * Apply upstream patches 004 - 011.
+  * Bump standards version.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 10 Nov 2019 11:45:12 +0100
+
 bash (5.0-4) unstable; urgency=medium
 
   * wait builtin: avoid hanging on inherited children. Closes: #920455.
