@@ -1,10 +1,8 @@
 # DP: bash(1): mention quoting when assigning to FIGNORE
 
-Index: b/doc/bash.1
-===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -2115,7 +2115,9 @@ A filename whose suffix matches one of t
+@@ -2171,7 +2171,9 @@ A filename whose suffix matches one of t
  is excluded from the list of matched filenames.
  A sample value is
  .if t \f(CW".o:~"\fP.

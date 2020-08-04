@@ -1,3 +1,9 @@
+bash (5.1~alpha1-1) experimental; urgency=medium
+
+  * New upstream release 5.1 alpha1.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 04 Aug 2020 19:24:57 +0200
+
 bash (5.0-7) unstable; urgency=medium
 
   * Apply upstream patches 012 - 016.

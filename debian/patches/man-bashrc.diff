@@ -52,7 +52,7 @@
  It will not do this if invoked as \fBsh\fP.
  The
  .B \-\-norc
-@@ -10887,6 +10894,9 @@ The \fBbash\fP executable
+@@ -11194,6 +11201,9 @@ The \fBbash\fP executable
  .FN /etc/profile
  The systemwide initialization file, executed for login shells
  .TP

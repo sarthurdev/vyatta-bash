@@ -1,10 +1,8 @@
 # DP: Clarify documentation about case-insensitive pathname expansion
 
-Index: b/doc/bash.1
-===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -3567,6 +3567,10 @@ If the shell option
+@@ -3651,6 +3651,10 @@ If the shell option
  .B nocaseglob
  is enabled, the match is performed without regard to the case
  of alphabetic characters.
