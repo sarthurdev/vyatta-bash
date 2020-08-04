@@ -242,9 +242,8 @@ endif
 	: # files for the bash-doc package
 
 	dh_installexamples -p$(p_doc) examples/*
-	mv $(d_doc)/usr/share/doc/$(p_doc)/examples \
-		$(d_doc)/usr/share/doc/$(p)/examples
 	rm -rf $(d_doc)/usr/share/doc/$(p)/examples/loadables
+	mkdir -p $(d_doc)/usr/share/doc/$(p_doc)
 	ln -sf ../$(p)/examples $(d_doc)/usr/share/doc/$(p_doc)/examples
 
 	rm -rf $(d_doc)/usr/share/doc/$(p)/examples/obashdb

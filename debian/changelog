@@ -1,3 +1,10 @@
+bash (5.0-7) unstable; urgency=medium
+
+  * Apply upstream patches 012 - 016.
+  * Bump debhelper version.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 04 Aug 2020 11:49:30 +0200
+
 bash (5.0-6) unstable; urgency=medium
 
   * Apply upstream patches 012 - 016.
