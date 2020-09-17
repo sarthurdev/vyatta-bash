@@ -1,10 +1,12 @@
 # DP: Move definition of the macro "FN" out of the region of the "ig"
 # DP: macro.  Define macros and registers "zZ" and "zY".
 
+Index: b/doc/bash.1
+===================================================================
 --- a/doc/bash.1
 +++ b/doc/bash.1
 @@ -8,6 +8,22 @@
- .\"	Last Change: Fri Jun  5 14:46:57 EDT 2020
+ .\"	Last Change: Tue Aug 25 09:58:55 EDT 2020
  .\"
  .\" bash_builtins, strip all but Built-Ins section
 +.de zZ
@@ -25,7 +27,7 @@
 +.if !rzY .nr zY 0 \" avoid a warning about an undefined register
  .if \n(zZ=1 .ig zZ
  .if \n(zY=1 .ig zY
- .TH BASH 1 "2020 June 5" "GNU Bash 5.1"
+ .TH BASH 1 "2020 August 25" "GNU Bash 5.1"
 @@ -36,13 +52,6 @@
  .\" .el \\*(]X\h|\\n()Iu+\\n()Ru\c
  .\" .}f
@@ -40,7 +42,7 @@
  .SH NAME
  bash \- GNU Bourne-Again SHell
  .SH SYNOPSIS
-@@ -2470,8 +2479,8 @@ and is set by the administrator who inst
+@@ -2472,8 +2481,8 @@ and is set by the administrator who inst
  .BR bash .
  A common value is
  .na

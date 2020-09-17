@@ -1,6 +1,12 @@
+bash (5.1~beta1-1) experimental; urgency=medium
+
+  * New upstream snapshot 5.1 beta1.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 17 Sep 2020 14:05:46 +0200
+
 bash (5.1~alpha1-1) experimental; urgency=medium
 
-  * New upstream release 5.1 alpha1.
+  * New upstream snapshot 5.1 alpha1.
 
  -- Matthias Klose <doko@debian.org>  Tue, 04 Aug 2020 19:24:57 +0200
 
