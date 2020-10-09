@@ -1,3 +1,9 @@
+bash (5.1~rc1-1) experimental; urgency=medium
+
+  * New upstream release candidate 1.
+
+ -- Matthias Klose <doko@debian.org>  Fri, 09 Oct 2020 17:47:40 +0200
+
 bash (5.1~beta1-1) experimental; urgency=medium
 
   * New upstream snapshot 5.1 beta1.
