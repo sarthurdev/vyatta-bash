@@ -262,6 +262,14 @@ endif
 		$(d_bins)/usr/share/doc/$(p)/examples/loadables
 	ln -sf bash $(d_bins)/usr/share/doc/$(p_bins)
 
+	sed -i \
+		-e 's@-ffile-prefix-map=[^ ]*[ ]*@@g' \
+		-e 's@-fdebug-prefix-map=[^ ]*[ ]*@@g' \
+		-e 's@^BUILD_DIR =.*@BUILD_DIR = /path/to/build-dir@' \
+		$(d)/usr/bin/bashbug \
+		$(d_bins)/usr/lib/bash/Makefile.inc \
+		$(d_bins)/usr/share/doc/$(p)/examples/loadables/Makefile
+
 #	cat debian/README stamps/stamp-patch > debian/README.Debian
 	cat debian/README > debian/README.Debian
 
