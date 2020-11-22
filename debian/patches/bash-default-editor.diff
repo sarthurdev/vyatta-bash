@@ -15,7 +15,7 @@
  static int
 --- a/builtins/fc.def
 +++ b/builtins/fc.def
-@@ -163,11 +163,11 @@ set_verbose_flag ()
+@@ -171,11 +171,11 @@ set_verbose_flag ()
  }
  
  /* String to execute on a file that we want to edit. */

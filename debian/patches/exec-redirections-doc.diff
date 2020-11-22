@@ -1,6 +1,6 @@
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -3997,6 +3997,10 @@ A failure to open or create a file cause
+@@ -3999,6 +3999,10 @@ A failure to open or create a file cause
  Redirections using file descriptors greater than 9 should be used with
  care, as they may conflict with file descriptors the shell uses
  internally.
