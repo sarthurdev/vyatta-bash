@@ -1,3 +1,9 @@
+bash (5.1-2) unstable; urgency=medium
+
+  * Apply upstream patches 001 - 004.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 03 Jan 2021 10:44:50 +0100
+
 bash (5.1-1) unstable; urgency=medium
 
   * New upstream release.
