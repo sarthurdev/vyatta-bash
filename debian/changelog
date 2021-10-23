@@ -1,3 +1,11 @@
+bash (5.1-3.1) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Non-maintainer upload.
+  * preinst: Remove obsolete upgrade path from pre-wheezy. Closes: #958083
+
+ -- Johannes Schauer Marin Rodrigues <josch@debian.org>  Sat, 23 Oct 2021 11:36:52 +0200
+
 bash (5.1-3) unstable; urgency=medium
 
   * Apply upstream patches 005 - 008.

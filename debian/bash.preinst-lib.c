@@ -13,7 +13,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <spawn.h>
 
 extern char **environ;
@@ -58,30 +57,12 @@ int exists(const char *file)
 	die_errno("cannot get status of %s", file);
 }
 
-void set_cloexec(int fd)
-{
-	int flags = fcntl(fd, F_GETFD);
-	if (flags < 0 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC))
-		die_errno("cannot set close-on-exec flag");
-}
-
-void xpipe(int pipefd[2])
-{
-	if (pipe(pipefd))
-		die_errno("cannot create pipe");
-	set_cloexec(pipefd[0]);
-	set_cloexec(pipefd[1]);
-}
-
-void wait_or_die(pid_t child, const char *name, int flags)
+static void wait_or_die(pid_t child, const char *name)
 {
 	int status;
 	if (waitpid(child, &status, 0) != child)
 		die_errno("cannot wait for %s", name);
-	if ((WIFEXITED(status) && WEXITSTATUS(status) == 0) ||
-	    ((flags & ERROR_OK) && WIFEXITED(status)) ||
-	    ((flags & SIGPIPE_OK) &&
-	     WIFSIGNALED(status) && WTERMSIG(status) == SIGPIPE))
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 		return;
 
 	if (WIFEXITED(status))
@@ -93,7 +74,7 @@ void wait_or_die(pid_t child, const char *name, int flags)
 	die("waitpid is confused (status=%d)", status);
 }
 
-pid_t spawn(const char * const cmd[], int out, int err)
+static pid_t spawn(const char * const cmd[], int out, int err)
 {
 	pid_t child;
 	posix_spawn_file_actions_t redir;
@@ -111,21 +92,5 @@ pid_t spawn(const char * const cmd[], int out, int err)
 void run(const char * const cmd[])
 {
 	pid_t child = spawn(cmd, -1, -1);
-	wait_or_die(child, cmd[0], 0);
-}
-
-FILE *spawn_pipe(pid_t *pid, const char * const cmd[], int errfd)
-{
-	int pipefd[2];
-	FILE *f;
-
-	xpipe(pipefd);
-	*pid = spawn(cmd, pipefd[1], errfd);
-	if (close(pipefd[1]) || (errfd != -1 && close(errfd)))
-		die_errno("cannot close unneeded fd");
-
-	f = fdopen(pipefd[0], "r");
-	if (!f)
-		die_errno("cannot stream read end of pipe");
-	return f;
+	wait_or_die(child, cmd[0]);
 }
