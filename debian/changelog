@@ -1,3 +1,11 @@
+bash (5.1-5) unstable; urgency=medium
+
+  * Apply upstream patches 009 - 012.
+  * Bump standards version.
+  * Remove preinst since "dash-as-sh"-transition is done. Closes: #958083.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 27 Nov 2021 09:37:10 +0100
+
 bash (5.1-3.1) unstable; urgency=medium
 
   [ Helmut Grohne ]

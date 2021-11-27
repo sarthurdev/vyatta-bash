@@ -89,8 +89,8 @@ endif
 static_conf_args := $(conf_args) \
 	--enable-static-link \
 
-#build: bash-build static-build preinst-build check
-build: before-build bash-build static-build preinst-build check
+#build: bash-build static-build check
+build: before-build bash-build static-build check
 build-arch: build
 build-indep: build
 
@@ -167,23 +167,11 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -rf stamps build-*
-	rm -f debian/bash.preinst debian/*.o
 	rm -f debian/README.Debian
 	rm -rf locales
 	rm -f clear_console
 	dh_autotools-dev_restoreconfig
 	dh_clean
-
-preinst-build: debian/bash.preinst
-
-PREINST_OBJECTS = debian/bash.preinst.o debian/bash.preinst-lib.o
-
-$(PREINST_OBJECTS): %.o: %.c debian/bash.preinst.h
-	$(CC) -c -o $@ $(CFLAGS) $(CPPFLAGS) $<
-
-debian/bash.preinst: $(PREINST_OBJECTS)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(PREINST_OBJECTS)
-	$(STRIP) -R .comment -R .note debian/bash.preinst
 
 # ---------------------------------------------------------------------------
 
@@ -305,7 +293,7 @@ endif
 	dh_md5sums -p$(p_doc)
 	dh_builddeb -p$(p_doc)
 
-binary-bash: bash-install debian/bash.preinst
+binary-bash: bash-install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs -p$(p)
@@ -322,7 +310,7 @@ binary-bash: bash-install debian/bash.preinst
 	dh_strip -p$(p)
 	dh_compress -p$(p)
 	dh_fixperms -p$(p)
-	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/bin/bash debian/bash.preinst
+	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/bin/bash
 	dh_installdeb -p$(p)
 	dh_gencontrol -p$(p)
 	dh_md5sums -p$(p)
@@ -449,7 +437,7 @@ remove-non-dfsg-files:
 
 .NOTPARALLEL: build
 .PHONY: unpack binary binary-arch binary-indep clean \
-    build bash-build static-build preinst-build \
+    build bash-build static-build \
     check \
     bash-configure static-configure \
     binary-doc binary-bash binary-builtins binary-static \
