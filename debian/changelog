@@ -1,3 +1,9 @@
+bash (5.1-6) unstable; urgency=medium
+
+  * Apply upstream patches 013 - 016.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 06 Jan 2022 17:16:52 +0100
+
 bash (5.1-5) unstable; urgency=medium
 
   * Apply upstream patches 009 - 012.
