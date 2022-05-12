@@ -227,6 +227,9 @@ ifneq (,$(findstring $(DEB_HOST_ARCH_OS), linux freebsd))
 	$(ID) debian/clear_console.1 $(d)/usr/share/man/man1/
 endif
 
+	: # /etc/shells integration
+	$(ID) -D debian/shells.d/bash $(d)/usr/share/debianutils/shells.d/bash
+
 	: # files for the bash-doc package
 
 	dh_installexamples -p$(p_doc) examples/*
@@ -339,6 +342,7 @@ binary-static: static-build
 		usr/share/man/man1
 	cp -p build-static/bash $(d_stat)/bin/bash-static
 	cp -p doc/bash.1 $(d_stat)/usr/share/man/man1/bash-static.1
+	$(ID) -D debian/shells.d/bash-static $(d_stat)/usr/share/debianutils/shells.d/bash-static
 	dh_installdocs -p$(p_stat)
 	dh_installchangelogs -p$(p_stat)
 	install -D -m 644 debian/bash-static.overrides \

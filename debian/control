@@ -17,7 +17,7 @@ Package: bash
 Architecture: any
 Multi-Arch: foreign
 Pre-Depends: ${shlibs:Pre-Depends}, ${misc:Depends}
-Depends: base-files (>= 2.1.12), debianutils (>= 2.15)
+Depends: base-files (>= 2.1.12), debianutils (>= 5.6-0.1)
 Recommends: bash-completion (>= 20060301-0)
 Conflicts: bash-completion (<< 20060301-0)
 Replaces: bash-doc (<= 2.05-1), bash-completion (<< 20060301-0)
@@ -39,7 +39,7 @@ Description: GNU Bourne Again SHell
 Package: bash-static
 Architecture: any
 Multi-Arch: foreign
-Depends: passwd (>= 1:4.0.3-10), ${misc:Depends}
+Depends: passwd (>= 1:4.0.3-10), debianutils (>= 5.6-0.1), ${misc:Depends}
 Suggests: bash-doc
 Section: shells
 Priority: optional

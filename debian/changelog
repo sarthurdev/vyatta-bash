@@ -1,3 +1,12 @@
+bash (5.1-6.1) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Non-maintainer upload.
+  * Replace add-shell/remove-shell with declarative shells.d trigger.
+    Closes: #1004171
+
+ -- Johannes Schauer Marin Rodrigues <josch@debian.org>  Thu, 12 May 2022 17:05:40 +0200
+
 bash (5.1-6) unstable; urgency=medium
 
   * Apply upstream patches 013 - 016.

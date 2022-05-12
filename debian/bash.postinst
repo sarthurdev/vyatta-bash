@@ -14,13 +14,6 @@ update-alternatives --install \
     10 \
   || true
 
-if [ "$1" = configure ] && dpkg --compare-versions "$2" le 3.2-3 \
-    && which add-shell >/dev/null
-then
-    add-shell /bin/bash
-    add-shell /bin/rbash
-fi
-
 #DEBHELPER#
 
 exit 0
