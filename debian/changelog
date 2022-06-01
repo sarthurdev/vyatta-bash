@@ -1,3 +1,9 @@
+bash (5.2~beta-1) experimental; urgency=medium
+
+  * New upstream snapshot 5.2 beta1.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 01 Jun 2022 10:48:43 +0200
+
 bash (5.1-6.1) unstable; urgency=medium
 
   [ Helmut Grohne ]

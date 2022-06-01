@@ -1,10 +1,8 @@
 # DP: document readline header location on Debian systems
 
-Index: b/examples/loadables/README
-===================================================================
 --- a/examples/loadables/README
 +++ b/examples/loadables/README
-@@ -38,6 +38,9 @@ rest of the example builtins. It's inten
+@@ -40,6 +40,9 @@ rest of the example builtins. It's inten
  that can be modified or included to help you build your own loadables
  without having to search for the right CFLAGS and LDFLAGS.
  
@@ -13,4 +11,4 @@ Index: b/examples/loadables/README
 +
  basename.c	Return non-directory portion of pathname.
  cat.c		cat(1) replacement with no options - the way cat was intended.
- dirname.c	Return directory portion of pathname.
+ csv.c		Process a line of csv data and store it in an indexed array.

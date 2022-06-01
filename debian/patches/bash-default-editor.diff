@@ -2,7 +2,7 @@
 
 --- a/bashline.c
 +++ b/bashline.c
-@@ -921,8 +921,8 @@ hostnames_matching (text)
+@@ -936,8 +936,8 @@ hostnames_matching (text)
     command being entered (if no explicit argument is given), otherwise on
     a command from the history file. */
  

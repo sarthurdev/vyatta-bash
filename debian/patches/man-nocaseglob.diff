@@ -2,7 +2,7 @@
 
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -3653,6 +3653,10 @@ If the shell option
+@@ -3754,6 +3754,10 @@ If the shell option
  .B nocaseglob
  is enabled, the match is performed without regard to the case
  of alphabetic characters.

@@ -2,7 +2,7 @@
 
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -2174,7 +2174,9 @@ A filename whose suffix matches one of t
+@@ -2220,7 +2220,9 @@ A filename whose suffix matches one of t
  is excluded from the list of matched filenames.
  A sample value is
  .if t \f(CW".o:~"\fP.

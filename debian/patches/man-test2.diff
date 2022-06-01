@@ -14,7 +14,7 @@
  false or an invalid argument is given.
 --- a/doc/bash.1
 +++ b/doc/bash.1
-@@ -725,6 +725,10 @@ as primaries.
+@@ -732,6 +732,10 @@ as primaries.
  .if n .sp 1
  When used with \fB[[\fP, the \fB<\fP and \fB>\fP operators sort
  lexicographically using the current locale.
@@ -27,7 +27,7 @@
  When the \fB==\fP and \fB!=\fP operators are used, the string to the
 --- a/doc/bashref.texi
 +++ b/doc/bashref.texi
-@@ -6954,6 +6954,10 @@ The @code{test} command uses ASCII order
+@@ -7322,6 +7322,10 @@ The @code{test} command uses ASCII order
  Unless otherwise specified, primaries that operate on files follow symbolic
  links and operate on the target of the link, rather than the link itself.
  
