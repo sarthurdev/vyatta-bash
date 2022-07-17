@@ -42,17 +42,18 @@
  .PP
  When
  .B bash
-@@ -425,7 +431,8 @@ daemon, usually \fIrshd\fP, or the secur
+@@ -426,8 +432,8 @@ or the secure shell daemon \fIsshd\fP.
  If
  .B bash
- determines it is being run in this fashion, it reads and executes
--commands from \fI~/.bashrc\fP, if that file exists and is readable.
-+commands from \fI~/.bashrc\fP and \fI~/.bashrc\fP, if these files
-+exist and are readable.
+ determines it is being run non-interactively in this fashion,
+-it reads and executes commands from \fI~/.bashrc\fP,
+-if that file exists and is readable.
++it reads and executes commands from \fI/etc/bash.bashrc\fP and \fI~/.bashrc\fP,
++if these files exist and are readable.
  It will not do this if invoked as \fBsh\fP.
  The
  .B \-\-norc
-@@ -11566,6 +11573,9 @@ The \fBbash\fP executable
+@@ -11581,6 +11587,9 @@ The \fBbash\fP executable
  .FN /etc/profile
  The systemwide initialization file, executed for login shells
  .TP
