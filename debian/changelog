@@ -1,3 +1,9 @@
+bash (5.2-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 28 Sep 2022 16:50:07 +0200
+
 bash (5.2~rc2-2) unstable; urgency=medium
 
   * New upstream snapshot 5.2 rc2.

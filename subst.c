@@ -8627,7 +8627,7 @@ valid_parameter_transform (xform)
     case 'P':		/* expand like prompt string */
     case 'Q':		/* quote reusably */
     case 'U':		/* transform to uppercase */
-    case 'u':		/* tranform by capitalizing */
+    case 'u':		/* transform by capitalizing */
     case 'L':		/* transform to lowercase */
       return 1;
     default:
@@ -8660,7 +8660,7 @@ parameter_brace_transform (varname, value, estatep, xform, rtype, quoted, pflags
       return ((char *)NULL);
     }
 
-  if (valid_parameter_transform (xform) == 0)
+  if (xform[0] == 0 || valid_parameter_transform (xform) == 0)
     {
       this_command_name = oname;
       if (vtype == VT_VARIABLE)
