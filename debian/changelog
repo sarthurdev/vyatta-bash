@@ -1,3 +1,13 @@
+bash (5.2-2) unstable; urgency=medium
+
+  * Apply upstream patches 001 - 002.
+    - Expanding unset arrays in an arithmetic context can cause a
+      segmentation fault.
+    - Starting bash with an invalid locale specification for
+      LC_ALL/LANG/LC_CTYPE can cause the shell to crash. Closes: #1021062.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 24 Oct 2022 10:34:28 +0200
+
 bash (5.2-1) unstable; urgency=medium
 
   * New upstream release.
