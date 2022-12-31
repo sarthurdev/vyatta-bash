@@ -1,5 +1,18 @@
 bash52-001.diff
 bash52-002.diff
+bash52-003.diff
+bash52-004.diff
+bash52-005.diff
+bash52-006.diff
+bash52-007.diff
+bash52-008.diff
+bash52-009.diff
+bash52-010.diff
+bash52-011.diff
+bash52-012.diff
+bash52-013.diff
+bash52-014.diff
+bash52-015.diff
 bashbug-editor.diff
 deb-bash-config.diff
 deb-examples.diff
@@ -19,3 +32,4 @@ bash-aliases-repeat.diff
 use-system-texi2html.diff
 man-macro-warnings.diff
 man-vx-opts.diff
+bash-musl.diff

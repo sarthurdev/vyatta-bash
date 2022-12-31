@@ -1,0 +1,38 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	5.2
+Patch-ID:	bash52-011
+
+Bug-Reported-by:	Fabien Orjollet <of1@disroot.org>
+Bug-Reference-ID:	
+Bug-Reference-URL:	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1023776
+
+Bug-Description:
+
+Using timeouts and readline editing with the `read' builtin (read -e -t) can
+leave the readline timeout enabled, potentially resulting in an erroneous
+timeout on the next call.
+
+--- a/builtins/read.def
++++ b/builtins/read.def
+@@ -167,6 +167,9 @@ reset_timeout ()
+   /* Cancel alarm before restoring signal handler. */
+   if (read_timeout)
+     shtimer_clear (read_timeout);
++#if defined (READLINE)
++  rl_clear_timeout ();
++#endif
+   read_timeout = 0;
+ }
+ 
+--- a/patchlevel.h
++++ b/patchlevel.h
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 10
++#define PATCHLEVEL 11
+ 
+ #endif /* _PATCHLEVEL_H_ */

@@ -1,0 +1,47 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release:	5.2
+Patch-ID:	bash52-013
+
+Bug-Reported-by:	Ralf Oehler <Ralf@Oehler-Privat.de>
+Bug-Reference-ID:	<20221120140252.2fc6489b@bilbo>
+Bug-Reference-URL:	https://lists.gnu.org/archive/html/bug-bash/2022-11/msg00082.html
+
+Bug-Description:
+
+Bash can leak memory when referencing a non-existent associative array
+element.
+
+--- a/patchlevel.h
++++ b/patchlevel.h
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 12
++#define PATCHLEVEL 13
+ 
+ #endif /* _PATCHLEVEL_H_ */
+--- a/subst.c
++++ b/subst.c
+@@ -7497,8 +7497,6 @@ expand_arrayref:
+ 		    ? quote_string (temp)
+ 		    : quote_escapes (temp);
+ 	  rflags |= W_ARRAYIND;
+-	  if (estatep)
+-	    *estatep = es;	/* structure copy */
+ 	}
+       /* Note that array[*] and array[@] expanded to a quoted null string by
+ 	 returning the W_HASQUOTEDNULL flag to the caller in addition to TEMP. */
+@@ -7507,7 +7505,9 @@ expand_arrayref:
+       else if (es.subtype == 2 && temp && QUOTED_NULL (temp) && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
+ 	rflags |= W_HASQUOTEDNULL;
+ 
+-      if (estatep == 0)
++      if (estatep)
++	*estatep = es;	/* structure copy */
++      else
+ 	flush_eltstate (&es);
+     }
+ #endif

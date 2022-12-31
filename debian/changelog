@@ -1,3 +1,15 @@
+bash (5.2-3) unstable; urgency=medium
+
+  * Apply upstream patches 003 - 015.
+  * Repack to get rid of non-source PDF (Bastian Germann). Closes: #1024598.
+  * d/watch: Update to v4 and add repack options.
+  * d/copyright: Convert to machine-readable format, adding missing info.
+    Closes: #1024602.
+  * Enable all hardening flags (Christian Göttsche). Closes: #1021082.
+  * Fix build on musl (Helmut Grohne). Closes: #1023053.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 31 Dec 2022 11:32:01 +0100
+
 bash (5.2-2) unstable; urgency=medium
 
   * Apply upstream patches 001 - 002.
