@@ -125,7 +125,7 @@ do { \
 } while (0)
 
 #if defined (EXTENDED_GLOB)
-extern int extended_glob;
+extern int extended_glob, extglob_flag;
 #endif
 
 #if defined (TRANSLATABLE_STRINGS)
@@ -2827,7 +2827,7 @@ execute_variable_command (command, vname)
   if (last_lastarg)
     last_lastarg = savestring (last_lastarg);
 
-  parse_and_execute (savestring (command), vname, SEVAL_NONINT|SEVAL_NOHIST);
+  parse_and_execute (savestring (command), vname, SEVAL_NONINT|SEVAL_NOHIST|SEVAL_NOOPTIMIZE);
 
   restore_parser_state (&ps);
   bind_variable ("_", last_lastarg, 0);
@@ -3304,8 +3304,10 @@ reset_parser ()
 #if defined (EXTENDED_GLOB)
   /* Reset to global value of extended glob */
   if (parser_state & (PST_EXTPAT|PST_CMDSUBST))
-    extended_glob = global_extglob;
+    extended_glob = extglob_flag;
 #endif
+  if (parser_state & (PST_CMDSUBST|PST_STRING))
+    expand_aliases = expaliases_flag;
 
   parser_state = 0;
   here_doc_first_line = 0;
@@ -3610,6 +3612,7 @@ tokword:
 #define P_BACKQUOTE	0x0010	/* parsing a backquoted command substitution */
 #define P_ARRAYSUB	0x0020	/* parsing a [...] array subscript for assignment */
 #define P_DOLBRACE	0x0040	/* parsing a ${...} construct */
+#define P_ARITH		0x0080	/* parsing a $(( )) arithmetic expansion */
 
 /* Lexical state while parsing a grouping construct or $(...). */
 #define LEX_WASDOL	0x0001
@@ -3908,6 +3911,9 @@ parse_matched_pair (qc, open, close, lenp, flags)
 	    }
 	  else if ((flags & (P_ARRAYSUB|P_DOLBRACE)) && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 	    goto parse_dollar_word;
+	  else if ((flags & P_ARITH) && (tflags & LEX_WASDOL) && ch == '(') /*)*/
+	    /* $() inside $(( ))/$[ ] */
+	    goto parse_dollar_word;
 #if defined (PROCESS_SUBSTITUTION)
 	  /* XXX - technically this should only be recognized at the start of
 	     a word */
@@ -3938,7 +3944,7 @@ parse_dollar_word:
 	  else if (ch == '{')		/* } */
 	    nestret = parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|P_DOLBRACE|rflags);
 	  else if (ch == '[')		/* ] */
-	    nestret = parse_matched_pair (0, '[', ']', &nestlen, rflags);
+	    nestret = parse_matched_pair (0, '[', ']', &nestlen, rflags|P_ARITH);
 
 	  CHECK_NESTRET_ERROR ();
 	  APPEND_NESTRET ();
@@ -4077,7 +4083,7 @@ parse_comsub (qc, open, close, lenp, flags)
       peekc = shell_getc (1);
       shell_ungetc (peekc);
       if (peekc == '(')		/*)*/
-	return (parse_matched_pair (qc, open, close, lenp, 0));
+	return (parse_matched_pair (qc, open, close, lenp, P_ARITH));
     }
 
 /*itrace("parse_comsub: qc = `%c' open = %c close = %c", qc, open, close);*/
@@ -4118,10 +4124,10 @@ parse_comsub (qc, open, close, lenp, flags)
     expand_aliases = posixly_correct != 0;
 #if defined (EXTENDED_GLOB)
   /* If (parser_state & PST_EXTPAT), we're parsing an extended pattern for a
-     conditional command and have already set global_extglob appropriately. */
+     conditional command and have already set extended_glob appropriately. */
   if (shell_compatibility_level <= 51 && was_extpat == 0)
     {
-      local_extglob = global_extglob = extended_glob;
+      local_extglob = extended_glob;
       extended_glob = 1;
     }
 #endif
@@ -4229,7 +4235,7 @@ xparse_dolparen (base, string, indp, flags)
 {
   sh_parser_state_t ps;
   sh_input_line_state_t ls;
-  int orig_ind, nc, sflags, start_lineno;
+  int orig_ind, nc, sflags, start_lineno, local_extglob;
   char *ret, *ep, *ostring;
 
 /*debug_parser(1);*/
@@ -4272,7 +4278,7 @@ xparse_dolparen (base, string, indp, flags)
      old value will be restored by restore_parser_state(). */
   expand_aliases = 0;
 #if defined (EXTENDED_GLOB)
-  global_extglob = extended_glob;		/* for reset_parser() */
+  local_extglob = extended_glob;
 #endif
 
   token_to_read = DOLPAREN;			/* let's trick the parser */
@@ -4290,6 +4296,9 @@ xparse_dolparen (base, string, indp, flags)
   restore_input_line_state (&ls);
   restore_parser_state (&ps);
 
+#if defined (EXTENDED_GLOB)
+  extended_glob = local_extglob;
+#endif
   token_to_read = 0;
 
   /* If parse_string returns < 0, we need to jump to top level with the
@@ -4388,6 +4397,7 @@ parse_string_to_command (string, flags)
   if (flags & SX_COMPLETE)
     parser_state |= PST_NOERROR;
 
+  parser_state |= PST_STRING;
   expand_aliases = 0;
 
   cmd = 0;
@@ -4497,7 +4507,7 @@ parse_arith_cmd (ep, adddq)
   int ttoklen;
 
   exp_lineno = line_number;
-  ttok = parse_matched_pair (0, '(', ')', &ttoklen, 0);
+  ttok = parse_matched_pair (0, '(', ')', &ttoklen, P_ARITH);
   rval = 1;
   if (ttok == &matched_pair_error)
     return -1;
@@ -4724,12 +4734,16 @@ cond_term ()
 	}
 
       /* rhs */
+#if defined (EXTENDED_GLOB)
       local_extglob = extended_glob;
       if (parser_state & PST_EXTPAT)
 	extended_glob = 1;
+#endif
       tok = read_token (READ);
+#if defined (EXTENDED_GLOB)
       if (parser_state & PST_EXTPAT)
 	extended_glob = local_extglob;
+#endif
       parser_state &= ~(PST_REGEXP|PST_EXTPAT);
 
       if (tok == WORD)
@@ -4776,7 +4790,6 @@ parse_cond_command ()
 {
   COND_COM *cexp;
 
-  global_extglob = extended_glob;
   cexp = cond_expr ();
   return (make_cond_command (cexp));
 }
@@ -5012,7 +5025,7 @@ read_token_word (character)
 		  pop_delimiter (dstack);
 		}
 	      else
-		ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
+		ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARITH);
 	      if (ttok == &matched_pair_error)
 		return -1;		/* Bail immediately. */
 	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 3,
@@ -6401,7 +6414,7 @@ parse_string_to_word_list (s, flags, whom)
       /* State flags we don't want to persist into compound assignments. */
       parser_state &= ~PST_NOEXPAND;	/* parse_comsub sentinel */
       /* State flags we want to set for this run through the tokenizer. */
-      parser_state |= PST_COMPASSIGN|PST_REPARSE;
+      parser_state |= PST_COMPASSIGN|PST_REPARSE|PST_STRING;
     }
 
   while ((tok = read_token (READ)) != yacc_EOF)

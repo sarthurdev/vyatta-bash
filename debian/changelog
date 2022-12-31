@@ -1,3 +1,9 @@
+bash (5.2.15-1) unstable; urgency=medium
+
+  * New patch release.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 31 Dec 2022 16:40:30 +0100
+
 bash (5.2-3) unstable; urgency=medium
 
   * Apply upstream patches 003 - 015.

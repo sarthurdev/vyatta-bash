@@ -1798,6 +1798,9 @@ extract_heredoc_dolbrace_string (string, sindex, quoted, flags)
   return (result);
 }
 
+#define PARAMEXPNEST_MAX	32	// for now
+static int dbstate[PARAMEXPNEST_MAX];
+
 /* Extract a parameter expansion expression within ${ and } from STRING.
    Obey the Posix.2 rules for finding the ending `}': count braces while
    skipping over enclosed quoted strings and command substitutions.
@@ -1828,6 +1831,8 @@ extract_dollar_brace_string (string, sindex, quoted, flags)
   if (quoted == Q_HERE_DOCUMENT && dolbrace_state == DOLBRACE_QUOTE && (flags & SX_NOALLOC) == 0)
     return (extract_heredoc_dolbrace_string (string, sindex, quoted, flags));
 
+  dbstate[0] = dolbrace_state;
+
   pass_character = 0;
   nesting_level = 1;
   slen = strlen (string + *sindex) + *sindex;
@@ -1852,6 +1857,8 @@ extract_dollar_brace_string (string, sindex, quoted, flags)
 
       if (string[i] == '$' && string[i+1] == LBRACE)
 	{
+	  if (nesting_level < PARAMEXPNEST_MAX)
+	    dbstate[nesting_level] = dolbrace_state;
 	  nesting_level++;
 	  i += 2;
 	  if (dolbrace_state == DOLBRACE_QUOTE || dolbrace_state == DOLBRACE_WORD)
@@ -1864,6 +1871,7 @@ extract_dollar_brace_string (string, sindex, quoted, flags)
 	  nesting_level--;
 	  if (nesting_level == 0)
 	    break;
+	  dolbrace_state = (nesting_level < PARAMEXPNEST_MAX) ? dbstate[nesting_level] : dbstate[0];	/* Guess using initial state */
 	  i++;
 	  continue;
 	}
@@ -3811,6 +3819,10 @@ pos_params (string, start, end, quoted, pflags)
 #define EXP_CHAR(s) (s == '$' || s == '`' || s == CTLESC || s == '~')
 #endif
 
+/* We don't perform process substitution in arithmetic expressions, so don't
+   bother checking for it. */
+#define ARITH_EXP_CHAR(s) (s == '$' || s == '`' || s == CTLESC || s == '~')
+
 /* If there are any characters in STRING that require full expansion,
    then call FUNC to expand STRING; otherwise just perform quote
    removal if necessary.  This returns a new string. */
@@ -4020,7 +4032,7 @@ expand_arith_string (string, quoted)
   i = saw_quote = 0;
   while (string[i])
     {
-      if (EXP_CHAR (string[i]))
+      if (ARITH_EXP_CHAR (string[i]))
 	break;
       else if (string[i] == '\'' || string[i] == '\\' || string[i] == '"')
 	saw_quote = string[i];
@@ -7115,8 +7127,12 @@ command_substitute (string, quoted, flags)
       remove_quoted_escapes (string);
 
       /* We want to expand aliases on this pass if we are not in posix mode
-	 for backwards compatibility. */
-      if (expand_aliases)
+	 for backwards compatibility. parse_and_execute() takes care of
+	 setting expand_aliases back to the global value when executing the
+	 parsed string. We only do this for $(...) command substitution,
+	 since that is what parse_comsub handles; `` comsubs are processed
+	 using parse.y:parse_matched_pair(). */
+      if (expand_aliases && (flags & PF_BACKQUOTE) == 0)
         expand_aliases = posixly_correct == 0;
 
       startup_state = 2;	/* see if we can avoid a fork */
@@ -7481,8 +7497,6 @@ expand_arrayref:
 		    ? quote_string (temp)
 		    : quote_escapes (temp);
 	  rflags |= W_ARRAYIND;
-	  if (estatep)
-	    *estatep = es;	/* structure copy */
 	}
       /* Note that array[*] and array[@] expanded to a quoted null string by
 	 returning the W_HASQUOTEDNULL flag to the caller in addition to TEMP. */
@@ -7491,7 +7505,9 @@ expand_arrayref:
       else if (es.subtype == 2 && temp && QUOTED_NULL (temp) && (quoted & (Q_DOUBLE_QUOTES|Q_HERE_DOCUMENT)))
 	rflags |= W_HASQUOTEDNULL;
 
-      if (estatep == 0)
+      if (estatep)
+	*estatep = es;	/* structure copy */
+      else
 	flush_eltstate (&es);
     }
 #endif
@@ -8957,7 +8973,8 @@ pat_subst (string, pat, rep, mflags)
       return (ret);
     }
   else if (*string == 0 && (match_pattern (string, pat, mtype, &s, &e) != 0))
-    return ((mflags & MATCH_EXPREP) ? strcreplace (rep, '&', "", 2) : savestring (rep));
+    return (mflags & MATCH_EXPREP) ? strcreplace (rep, '&', "", 2)
+				   : (rep ? savestring (rep) : savestring (""));
 
   ret = (char *)xmalloc (rsize = 64);
   ret[0] = '\0';
@@ -10857,7 +10874,7 @@ expand_array_subscript (string, sindex, quoted, flags)
   exp = substring (string, si+1, ni);
   t = expand_subscript_string (exp, quoted & ~(Q_ARITH|Q_DOUBLE_QUOTES));
   free (exp);
-  exp = sh_backslash_quote (t, abstab, 0);
+  exp = t ? sh_backslash_quote (t, abstab, 0) : savestring ("");
   free (t);
 
   slen = STRLEN (exp);
@@ -11283,7 +11300,7 @@ add_string:
 	    else
 	      {
 		de_backslash (temp);
-		tword = command_substitute (temp, quoted, 0);
+		tword = command_substitute (temp, quoted, PF_BACKQUOTE);
 		temp1 = tword ? tword->word : (char *)NULL;
 		if (tword)
 		  dispose_word_desc (tword);

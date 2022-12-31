@@ -1536,7 +1536,7 @@ execute_in_subshell (command, asynchronous, pipe_in, pipe_out, fds_to_close)
 	 expansion with `shopt -s expand_alias' to continue to expand
 	 aliases. */
       if (ois != interactive_shell)
-	expand_aliases = 0;
+	expand_aliases = expaliases_flag = 0;
     }
 
   /* Subshells are neither login nor interactive. */
@@ -1654,7 +1654,8 @@ execute_in_subshell (command, asynchronous, pipe_in, pipe_out, fds_to_close)
      subshell sets an exit trap, so we set CMD_NO_FORK for simple commands
      and set CMD_TRY_OPTIMIZING for simple commands on the right side of an
      and-or or `;' list to test for optimizing forks when they are executed. */
-  if (user_subshell && command->type == cm_subshell)
+  if (user_subshell && command->type == cm_subshell &&
+      (command->flags & (CMD_TIME_PIPELINE|CMD_INVERT_RETURN)) == 0)
     optimize_subshell_command (command->value.Subshell->command);
 
   /* Do redirections, then dispose of them before recursive call. */
@@ -3624,6 +3625,7 @@ execute_case_command (case_command)
 	  free (pattern);
 
 	  dispose_words (es);
+	  QUIT;
 
 	  if (match)
 	    {
@@ -3990,13 +3992,11 @@ execute_cond_node (cond)
       else
 #endif /* COND_REGEXP */
 	{
-	  int oe;
-	  oe = extended_glob;
 	  extended_glob = 1;
 	  result = binary_test (cond->op->word, arg1, arg2, TEST_PATMATCH|TEST_ARITHEXP|TEST_LOCALE)
 				  ? EXECUTION_SUCCESS
 				  : EXECUTION_FAILURE;
-	  extended_glob = oe;
+	  extended_glob = extglob_flag;
 	}
       if (arg1 != nullstr)
 	free (arg1);

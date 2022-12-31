@@ -51,6 +51,7 @@ do { \
 #define SEVAL_FUNCDEF	0x080		/* only allow function definitions */
 #define SEVAL_ONECMD	0x100		/* only allow a single command */
 #define SEVAL_NOHISTEXP	0x200		/* inhibit history expansion */
+#define SEVAL_NOOPTIMIZE 0x400		/* don't try to set optimization flags */
 
 /* Flags for describe_command, shared between type.def and command.def */
 #define CDESC_ALL		0x001	/* type -a */
@@ -256,6 +257,12 @@ extern int print_shift_error;
 #if defined (ARRAY_VARS)
 extern int expand_once_flag;
 #endif
+
+#if defined (EXTENDED_GLOB)
+extern int extglob_flag;
+#endif
+
+extern int expaliases_flag;
 
 /* variables from source.def */
 extern int source_searches_cwd;

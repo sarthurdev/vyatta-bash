@@ -91,7 +91,7 @@ static struct {
 {
   &interactive_comments,
   &source_uses_path,
-  &expand_aliases,
+  &expaliases_flag,
   &inherit_errexit,
   &print_shift_error,
   0
@@ -106,7 +106,8 @@ posix_initialize (on)
   /* Things that should be turned on when posix mode is enabled. */
   if (on != 0)
     {
-      interactive_comments = source_uses_path = expand_aliases = 1;
+      interactive_comments = source_uses_path = 1;
+      expand_aliases = expaliases_flag = 1;
       inherit_errexit = 1;
       source_searches_cwd = 0;
       print_shift_error = 1;
@@ -116,13 +117,14 @@ posix_initialize (on)
   else if (saved_posix_vars)		/* on == 0, restore saved settings */
     {
       set_posix_options (saved_posix_vars);
+      expand_aliases = expaliases_flag;
       free (saved_posix_vars);
       saved_posix_vars = 0;
     }
   else	/* on == 0, restore a default set of settings */
     {
       source_searches_cwd = 1;
-      expand_aliases = interactive_shell;
+      expand_aliases = expaliases_flag = interactive_shell;	/* XXX */
       print_shift_error = 0;
     }
 }
@@ -681,21 +683,20 @@ check_binary_file (sample, sample_len)
      int sample_len;
 {
   register int i;
+  int nline;
   unsigned char c;
 
   if (sample_len >= 4 && sample[0] == 0x7f && sample[1] == 'E' && sample[2] == 'L' && sample[3] == 'F')
     return 1;
 
   /* Generally we check the first line for NULs. If the first line looks like
-     a `#!' interpreter specifier, we just look for NULs anywhere in the
-     buffer. */
-  if (sample[0] == '#' && sample[1] == '!')
-    return (memchr (sample, '\0', sample_len) != NULL);
+     a `#!' interpreter specifier, we look for NULs in the first two lines. */
+  nline = (sample[0] == '#' && sample[1] == '!') ? 2 : 1;
 
   for (i = 0; i < sample_len; i++)
     {
       c = sample[i];
-      if (c == '\n')
+      if (c == '\n' && --nline == 0)
 	return (0);
       if (c == '\0')
 	return (1);
