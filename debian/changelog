@@ -1,3 +1,9 @@
+bash (5.2.15-2) unstable; urgency=medium
+
+  * Remove one more pdf file without source. Closes: #1024598.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 02 Jan 2023 13:06:21 +0100
+
 bash (5.2.15-1) unstable; urgency=medium
 
   * New patch release.

@@ -436,7 +436,7 @@ update-patches:
 remove-non-dfsg-files:
 	rm -f doc/article.*
 	rm -f doc/FAQ
-	rm -f doc/aosa-bash.pdf
+	rm -f doc/aosa-bash*.pdf
 	rm -f doc/rose94.*
 
 .NOTPARALLEL: build
