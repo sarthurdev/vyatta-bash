@@ -1,3 +1,10 @@
+bash (5.2.21-1) unstable; urgency=medium
+
+  * New patch release.
+  * Bump standards version.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 25 Nov 2023 11:43:49 +0100
+
 bash (5.2.15-2) unstable; urgency=medium
 
   * Remove one more pdf file without source. Closes: #1024598.
