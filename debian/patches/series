@@ -18,3 +18,4 @@ use-system-texi2html.diff
 man-macro-warnings.diff
 man-vx-opts.diff
 bash-musl.diff
+fix-rl_do_undo-crash.diff
