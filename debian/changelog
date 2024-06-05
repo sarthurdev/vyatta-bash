@@ -1,3 +1,10 @@
+bash (5.2.21-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Move aliased files to /usr for DEP17. Closes: #1064888.
+
+ -- Helmut Grohne <helmut@subdivi.de>  Wed, 05 Jun 2024 17:19:12 +0200
+
 bash (5.2.21-2) unstable; urgency=medium
 
   * Fix crash in rl_do_undo, taken from upstream. See #1056314, #1037274.

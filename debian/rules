@@ -184,7 +184,7 @@ stamps/stamp-install-bash: before-build stamps/stamp-build-bash
 	dh_testroot
 	dh_prep -p$(p) -p$(p_doc) -p$(p_bins)
 	dh_installdirs -p$(p) \
-		bin \
+		usr/bin \
 		etc/skel \
 		usr/share/doc/$(p)
 	dh_installdirs -p$(p_doc) \
@@ -201,7 +201,6 @@ endif
 	$(MAKE) -C build-bash install \
 		YACC="$(YACC)" \
 		DESTDIR=$(CURDIR)/$(d)
-	mv $(d)/usr/bin/bash $(d)/bin/.
 	chmod 755 $(d)/usr/bin/bashbug
 	$(ID) debian/bashbug.1 $(d)/usr/share/man/man1/
 ifneq ($(with_gfdl),yes)
@@ -213,7 +212,7 @@ endif
 	rm -f $(d)/usr/share/info/dir*
 
 	: # extra links
-	ln -sf bash $(d)/bin/rbash
+	ln -sf bash $(d)/usr/bin/rbash
 
 	: # skeleton files
 	$(ID) debian/etc.bash.bashrc $(d)/etc/bash.bashrc
@@ -313,7 +312,7 @@ binary-bash: bash-install
 	dh_strip -p$(p)
 	dh_compress -p$(p)
 	dh_fixperms -p$(p)
-	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/bin/bash
+	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/usr/bin/bash
 	dh_installdeb -p$(p)
 	dh_gencontrol -p$(p)
 	dh_md5sums -p$(p)
@@ -338,9 +337,9 @@ binary-static: static-build
 	dh_testroot
 	dh_prep -p$(p_stat)
 	dh_installdirs -p$(p_stat) \
-		bin \
+		usr/bin \
 		usr/share/man/man1
-	cp -p build-static/bash $(d_stat)/bin/bash-static
+	cp -p build-static/bash $(d_stat)/usr/bin/bash-static
 	cp -p doc/bash.1 $(d_stat)/usr/share/man/man1/bash-static.1
 	$(ID) -D debian/shells.d/bash-static $(d_stat)/usr/share/debianutils/shells.d/bash-static
 	dh_installdocs -p$(p_stat)
