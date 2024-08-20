@@ -1,3 +1,12 @@
+bash (5.2.32-1) unstable; urgency=medium
+
+  * New patch release.
+    - Remove duplicate definition of strtoimax. Closes: #1023053.
+  * /etc/bash.bashrc Don't dereference undefined variables, breaking
+    when run with -u. Closes: #941248, #1034658, #1064645.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 20 Aug 2024 09:47:46 +0200
+
 bash (5.2.21-2.1) unstable; urgency=medium
 
   * Non-maintainer upload.
