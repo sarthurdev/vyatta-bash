@@ -90,11 +90,11 @@ static_conf_args := $(conf_args) \
 	--enable-static-link \
 
 #build: bash-build static-build check
-build: before-build bash-build static-build check
+build: stamps/before-build bash-build static-build check
 build-arch: build
 build-indep: build
 
-before-build:
+stamps/before-build:
 	dh_testdir
 #	dh_update_autotools_config
 	dh_autotools-dev_updateconfig
@@ -106,6 +106,7 @@ ifneq (,$(findstring $(DEB_HOST_ARCH_OS), linux freebsd))
 	$(CC) $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) -o clear_console \
 	    debian/clear_console.c $(termcap_lib)
 endif
+	touch $@
 
 # ---------------------------------------------------------------------------
 # build standard bash
@@ -115,7 +116,7 @@ bash-build:
 	    bash_src=. \
 	    build=bash \
 	    configure_args="$(conf_args)"
-bash-configure:
+bash-configure: stamps/before-build
 	$(MAKE) -f debian/rules do-configure-bash \
 	    bash_src=. \
 	    build=bash \
@@ -129,7 +130,7 @@ static-build:
 	    bash_src=. \
 	    build=static \
 	    configure_args="$(static_conf_args)"
-static-configure:
+static-configure: stamps/before-build
 	$(MAKE) -f debian/rules do-configure-static \
 	    bash_src=. \
 	    build=static \
@@ -139,7 +140,7 @@ static-configure:
 
 bash-doc-build: stamps/stamp-build-bash-doc
 stamps/stamp-build-bash-doc:
-	rm -f bash/doc/bashref.info
+	rm -fr doc/bash.info doc/bash.pdf doc/bash.html doc/bashref.info doc/bashref.pdf doc/bashref.html
 	$(MAKE) -C build-bash/doc info html MAN2HTML=/usr/bin/man2html
 	$(MAKE) -C build-bash/doc bash.pdf bashref.pdf
 	touch stamps/stamp-build-bash-doc
@@ -170,6 +171,7 @@ clean:
 	rm -f debian/README.Debian
 	rm -rf locales
 	rm -f clear_console
+	rm -fr doc/bash.info doc/bash.pdf doc/bash.html doc/bashref.info doc/bashref.pdf doc/bashref.html
 	dh_autotools-dev_restoreconfig
 	dh_clean
 
@@ -179,7 +181,7 @@ clean:
 install: bash-install
 
 bash-install: bash-build stamps/stamp-install-bash
-stamps/stamp-install-bash: before-build stamps/stamp-build-bash
+stamps/stamp-install-bash: stamps/before-build stamps/stamp-build-bash
 	dh_testdir
 	dh_testroot
 	dh_prep -p$(p) -p$(p_doc) -p$(p_bins)
@@ -399,7 +401,7 @@ endif
 	touch stamps/stamp-build-$(build)
 
 do-configure-$(build): stamps/stamp-configure-$(build)
-stamps/stamp-configure-$(build):
+stamps/stamp-configure-$(build): stamps/before-build
 	dh_testdir
 	rm -rf build-$(build)
 	mkdir build-$(build)

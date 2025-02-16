@@ -12,6 +12,7 @@ Build-Conflicts: r-base-core
 Homepage: http://tiswww.case.edu/php/chet/bash/bashtop.html
 Vcs-Browser: https://code.launchpad.net/~doko/+junk/pkg-bash-debian
 Vcs-Bzr: http://bazaar.launchpad.net/~doko/+junk/pkg-bash-debian
+Rules-Requires-Root: binary-targets
 
 Package: bash
 Architecture: any

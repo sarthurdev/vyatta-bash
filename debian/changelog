@@ -1,3 +1,16 @@
+bash (5.2.37-1.1) unstable; urgency=medium
+
+  * NMU
+  * Fix FTBFS (Closes: #1092374)
+    - d/rules: Remove pre-built docs to ensure they are regenerated.
+      Without this, the `-b` build would fail but `-B` / `-A` would
+      somehow succed.
+    - Import packaging changes from 5.3~beta1-1 to make the build
+      more robust. This also includes a `Rules-Requires-Root`,
+      which is part of fixing this FTBFS.
+
+ -- Niels Thykier <niels@thykier.net>  Sun, 16 Feb 2025 09:57:09 +0000
+
 bash (5.2.37-1) unstable; urgency=medium
 
   * New patch release.
