@@ -1,6 +1,6 @@
 /* evalstring.c - evaluate a string as one or more shell commands. */
 
-/* Copyright (C) 1996-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2020 Free Software Foundation, Inc.
 
    This file is part of GNU Bash, the Bourne Again SHell.
 
@@ -63,7 +63,7 @@ extern int errno;
 
 int parse_and_execute_level = 0;
 
-static int cat_file __P((REDIRECT *));
+static int cat_file PARAMS((REDIRECT *));
 
 #define PE_TAG "parse_and_execute top"
 #define PS_TAG "parse_string top"
@@ -91,6 +91,7 @@ should_suppress_fork (command)
   return (startup_state == 2 && parse_and_execute_level == 1 &&
 	  running_trap == 0 &&
 	  *bash_input.location.string == '\0' &&
+	  parser_expanding_alias () == 0 &&
 	  command->type == cm_simple &&
 	  signal_is_trapped (EXIT_TRAP) == 0 &&
 	  signal_is_trapped (ERROR_TRAP) == 0 &&
@@ -100,12 +101,23 @@ should_suppress_fork (command)
 	  ((command->flags & CMD_INVERT_RETURN) == 0));
 }
 
+int
+can_optimize_connection (command)
+     COMMAND *command;
+{
+  return (*bash_input.location.string == '\0' &&
+	  parser_expanding_alias () == 0 &&
+	  (command->value.Connection->connector == AND_AND || command->value.Connection->connector == OR_OR || command->value.Connection->connector == ';') &&
+	  command->value.Connection->second->type == cm_simple);
+}
+
 void
 optimize_fork (command)
      COMMAND *command;
 {
   if (command->type == cm_connection &&
-      (command->value.Connection->connector == AND_AND || command->value.Connection->connector == OR_OR) &&
+      (command->value.Connection->connector == AND_AND || command->value.Connection->connector == OR_OR || command->value.Connection->connector == ';') &&
+      (command->value.Connection->second->flags & CMD_TRY_OPTIMIZING) &&
       should_suppress_fork (command->value.Connection->second))
     {
       command->value.Connection->second->flags |= CMD_NO_FORK;
@@ -280,7 +292,7 @@ parse_and_execute (string, from_file, flags)
 
   with_input_from_string (string, from_file);
   clear_shell_input_line ();
-  while (*(bash_input.location.string))
+  while (*(bash_input.location.string) || parser_expanding_alias ())
     {
       command = (COMMAND *)NULL;
 
@@ -327,6 +339,7 @@ parse_and_execute (string, from_file, flags)
 	      if (command)
 		run_unwind_frame ("pe_dispose");
 	      last_result = last_command_exit_value = EXECUTION_FAILURE; /* XXX */
+	      set_pipestatus_from_exit (last_command_exit_value);
 	      if (subshell_environment)
 		{
 		  should_jump_to_top_level = 1;
@@ -377,6 +390,7 @@ parse_and_execute (string, from_file, flags)
 		      internal_warning (_("%s: ignoring function definition attempt"), from_file);
 		      should_jump_to_top_level = 0;
 		      last_result = last_command_exit_value = EX_BADUSAGE;
+		      set_pipestatus_from_exit (last_command_exit_value);
 		      reset_parser ();
 		      break;
 		    }
@@ -412,8 +426,18 @@ parse_and_execute (string, from_file, flags)
 		  command->flags |= CMD_NO_FORK;
 		  command->value.Simple->flags |= CMD_NO_FORK;
 		}
-	      else if (command->type == cm_connection)
-		optimize_fork (command);
+
+	      /* Can't optimize forks out here execept for simple commands.
+		 This knows that the parser sets up commands as left-side heavy
+		 (&& and || are left-associative) and after the single parse,
+		 if we are at the end of the command string, the last in a
+		 series of connection commands is
+		 command->value.Connection->second. */
+	      else if (command->type == cm_connection && can_optimize_connection (command))
+		{
+		  command->value.Connection->second->flags |= CMD_TRY_OPTIMIZING;
+		  command->value.Connection->second->value.Simple->flags |= CMD_TRY_OPTIMIZING;
+		}
 #endif /* ONESHOT */
 
 	      /* See if this is a candidate for $( <file ). */
@@ -525,7 +549,7 @@ parse_string (string, from_file, flags, endp)
   ostring = string;
 
   with_input_from_string (string, from_file);
-  while (*(bash_input.location.string))
+  while (*(bash_input.location.string))		/* XXX - parser_expanding_alias () ? */
     {
       command = (COMMAND *)NULL;
 
@@ -587,7 +611,7 @@ itrace("parse_string: longjmp executed: code = %d", code);
 	  break;
     }
 
- out:
+out:
 
   global_command = oglobal;
   nc = bash_input.location.string - ostring;
@@ -632,7 +656,7 @@ cat_file (r)
 
   if (fn == 0)
     {
-      redirection_error (r, AMBIGUOUS_REDIRECT);
+      redirection_error (r, AMBIGUOUS_REDIRECT, fn);
       return -1;
     }
 

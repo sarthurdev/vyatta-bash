@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2020 Free Software Foundation, Inc.
 
    This file is part of GNU Bash, the Bourne Again SHell.
    
@@ -16,7 +16,7 @@
    along with Bash.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-static int INTERNAL_GLOB_PATTERN_P __P((const GCHAR *));
+static int INTERNAL_GLOB_PATTERN_P PARAMS((const GCHAR *));
 
 /* Return nonzero if PATTERN has any special globbing chars in it.
    Compiled twice, once each for single-byte and multibyte characters. */
@@ -26,10 +26,10 @@ INTERNAL_GLOB_PATTERN_P (pattern)
 {
   register const GCHAR *p;
   register GCHAR c;
-  int bopen;
+  int bopen, bsquote;
 
   p = pattern;
-  bopen = 0;
+  bopen = bsquote = 0;
 
   while ((c = *p++) != L('\0'))
     switch (c)
@@ -54,20 +54,27 @@ INTERNAL_GLOB_PATTERN_P (pattern)
 	continue;
 
       case L('\\'):
-#if 0
 	/* Don't let the pattern end in a backslash (GMATCH returns no match
-	   if the pattern ends in a backslash anyway), but otherwise return 1,
-	   since the matching engine uses backslash as an escape character
-	   and it can be removed. */
-	return (*p != L('\0'));
-#else
-	/* The pattern may not end with a backslash. */
-	if (*p++ == L('\0'))
+	   if the pattern ends in a backslash anyway), but otherwise note that 
+	   we have seen this, since the matching engine uses backslash as an
+	   escape character and it can be removed. We return 2 later if we
+	   have seen only backslash-escaped characters, so interested callers
+	   know they can shortcut and just dequote the pathname. */
+	if (*p != L('\0'))
+	  {
+	    p++;
+	    bsquote = 1;
+	    continue;
+	  }
+	else 	/* (*p == L('\0')) */
 	  return 0;
-#endif
       }
 
-  return 0;
+#if 0
+  return bsquote ? 2 : 0;
+#else
+  return (0);
+#endif
 }
 
 #undef INTERNAL_GLOB_PATTERN_P
