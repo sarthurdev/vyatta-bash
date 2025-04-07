@@ -4,9 +4,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- This text is a brief description of the features that are present in
-the Bash shell (version 5.2, 3 June 2022).
+the Bash shell (version 5.2, 19 September 2022).
 
-This is Edition 5.2, last updated 3 June 2022,
+This is Edition 5.2, last updated 19 September 2022,
 of The GNU Bash Reference Manual,
 for Bash, Version 5.2.
 
@@ -77,10 +77,10 @@ Next: <a href="#Introduction" accesskey="n" rel="next">Introduction</a>, Previou
 <span id="Bash-Features-1"></span><h1 class="top">Bash Features</h1>
 
 <p>This text is a brief description of the features that are present in
-the Bash shell (version 5.2, 3 June 2022).
+the Bash shell (version 5.2, 19 September 2022).
 The Bash home page is <a href="http://www.gnu.org/software/bash/">http://www.gnu.org/software/bash/</a>.
 </p>
-<p>This is Edition 5.2, last updated 3 June 2022,
+<p>This is Edition 5.2, last updated 19 September 2022,
 of <cite>The GNU Bash Reference Manual</cite>,
 for <code>Bash</code>, Version 5.2.
 </p>
@@ -1418,16 +1418,16 @@ It has almost the same syntax as the <code>for</code> command:
 </pre></div>
 
 <p>The list of words following <code>in</code> is expanded, generating a list
-of items.  The set of expanded words is printed on the standard
+of items, and the set of expanded words is printed on the standard
 error output stream, each preceded by a number.  If the
 &lsquo;<samp>in <var>words</var></samp>&rsquo; is omitted, the positional parameters are printed,
 as if &lsquo;<samp>in &quot;$@&quot;</samp>&rsquo; had been specified.
-The <code>PS3</code> prompt is then displayed and a line is read from the
-standard input.
+<code>select</code> then displays the <code>PS3</code>
+prompt and reads a line from the standard input.
 If the line consists of a number corresponding to one of the displayed
 words, then the value of <var>name</var> is set to that word.
 If the line is empty, the words and prompt are displayed again.
-If <code>EOF</code> is read, the <code>select</code> command completes.
+If <code>EOF</code> is read, the <code>select</code> command completes and returns 1.
 Any other value read causes <var>name</var> to be set to null.
 The line read is saved in the variable <code>REPLY</code>.
 </p>
@@ -3323,7 +3323,7 @@ the current locale and the values of the
 <p>For example, in the default C locale, &lsquo;<samp>[a-dx-z]</samp>&rsquo; is equivalent to
 &lsquo;<samp>[abcdxyz]</samp>&rsquo;.  Many locales sort characters in dictionary order, and in
 these locales &lsquo;<samp>[a-dx-z]</samp>&rsquo; is typically not equivalent to &lsquo;<samp>[abcdxyz]</samp>&rsquo;;
-it might be equivalent to &lsquo;<samp>[aBbCcDdxXyYz]</samp>&rsquo;, for example.  To obtain
+it might be equivalent to &lsquo;<samp>[aBbCcDdxYyZz]</samp>&rsquo;, for example.  To obtain
 the traditional interpretation of ranges in bracket expressions, you can
 force the use of the C locale by setting the <code>LC_COLLATE</code> or
 <code>LC_ALL</code> environment variable to the value &lsquo;<samp>C</samp>&rsquo;, or enable the
@@ -3382,6 +3382,12 @@ sub-patterns:
 </p></dd>
 </dl>
 
+<p>The <code>extglob</code> option changes the behavior of the parser, since the
+parentheses are normally treated as operators with syntactic meaning.
+To ensure that extended matching patterns are parsed correctly, make sure
+that <code>extglob</code> is enabled before parsing constructs containing the
+patterns, including shell functions and command substitutions.
+</p>
 <p>When matching filenames, the <code>dotglob</code> shell option determines
 the set of filenames that are tested:
 when <code>dotglob</code> is enabled, the set of filenames includes all files
@@ -4286,7 +4292,7 @@ The return status is zero.
 current shell context.  If <var>filename</var> does not contain a slash,
 the <code>PATH</code> variable is used to find <var>filename</var>,
 but <var>filename</var> does not need to be executable.
-When Bash is not in <small>POSIX</small> mode, the current directory is searched
+When Bash is not in <small>POSIX</small> mode, it searches the current directory
 if <var>filename</var> is not found in <code>$PATH</code>.
 If any <var>arguments</var> are supplied, they become the positional
 parameters when <var>filename</var> is executed.  Otherwise the positional
@@ -6329,7 +6335,7 @@ versions through 4.2.
 <dt><span><code>direxpand</code></span></dt>
 <dd><p>If set, Bash
 replaces directory names with the results of word expansion when performing
-filename completion.  This changes the contents of the readline editing
+filename completion.  This changes the contents of the Readline editing
 buffer.
 If not set, Bash attempts to preserve what the user typed.
 </p>
@@ -7112,7 +7118,7 @@ Emacs shell buffer and disables line editing.
 </p>
 </dd>
 <dt id='index-ENV'><span><code>ENV</code><a href='#index-ENV' class='copiable-anchor'> &para;</a></span></dt>
-<dd><p>Expanded and executed similarlty to <code>BASH_ENV</code>
+<dd><p>Expanded and executed similarly to <code>BASH_ENV</code>
 (see <a href="#Bash-Startup-Files">Bash Startup Files</a>)
 when an interactive shell is invoked in
 <small>POSIX</small> Mode (see <a href="#Bash-POSIX-Mode">Bash POSIX Mode</a>).
@@ -9250,7 +9256,7 @@ the <code>eval</code> builtin.
 </li><li> While variable indirection is available, it may not be applied to the
 &lsquo;<samp>#</samp>&rsquo; and &lsquo;<samp>?</samp>&rsquo; special parameters.
 
-</li><li> When expanding the &lsquo;<samp>*</samp>&rsquo; special parameter in a pattern context where the
+</li><li> Expanding the &lsquo;<samp>*</samp>&rsquo; special parameter in a pattern context where the
 expansion is double-quoted does not treat the <code>$*</code> as if it were
 double-quoted.
 
@@ -9358,7 +9364,7 @@ has been set.
 If Bash receives a trapped signal while executing <code>read</code>, the trap
 handler executes and <code>read</code> returns an exit status greater than 128.
 
-</li><li> The <code>printf</code> builting uses <code>double</code> (via <code>strtod</code>) to convert
+</li><li> The <code>printf</code> builtin uses <code>double</code> (via <code>strtod</code>) to convert
 arguments corresponding to floating point conversion specifiers, instead of
 <code>long double</code> if it&rsquo;s available. The &lsquo;<samp>L</samp>&rsquo; length modifier forces
 <code>printf</code> to use <code>long double</code> if it&rsquo;s available.
@@ -9414,7 +9420,7 @@ behavior. It&rsquo;s intended to be a temporary solution.
 <p>This section does not mention behavior that is standard for a particular
 version (e.g., setting <code>compat32</code> means that quoting the rhs of the regexp
 matching operator quotes special regexp characters in the word, which is
-default behavior in bash-3.2 and above). 
+default behavior in bash-3.2 and subsequent versions). 
 </p>
 <p>If a user enables, say, <code>compat32</code>, it may affect the behavior of other
 compatibility levels up to and including the current compatibility level.
@@ -9511,7 +9517,7 @@ are not special within double-quoted word expansions
 <dd><ul>
 <li> the shell does not print a warning message if an attempt is made to
 use a quoted compound assignment as an argument to declare
-(declare -a foo=&rsquo;(1 2)&rsquo;). Later versions warn that this usage is
+(e.g., declare -a foo=&rsquo;(1 2)&rsquo;). Later versions warn that this usage is
 deprecated
 </li><li> word expansion errors are considered non-fatal errors that cause the
 current command to fail, even in posix mode
@@ -9577,6 +9583,14 @@ Bash-5.2 will look for and report on a key named &lsquo;<samp>@</samp>&rsquo;
 <var>value</var>, before any variable-specific transformations have been
 performed (e.g., converting to lowercase).
 Bash-5.2 will return the final value assigned to the variable.
+</li><li> Parsing command substitutions will behave as if extended glob
+(see <a href="#The-Shopt-Builtin">The Shopt Builtin</a>)
+is enabled, so that parsing a command substitution containing an extglob
+pattern (say, as part of a shell function) will not fail.
+This assumes the intent is to enable extglob before the command is executed
+and word expansions are performed.
+It will fail at word expansion time if extglob hasn&rsquo;t been
+enabled by the time the command is executed.
 </li></ul>
 </dd>
 </dl>
@@ -9846,10 +9860,14 @@ The variable will be unset initially, before any assignment.
 This is useful only when the <samp>-n</samp> option is supplied.
 Supplying the <samp>-f</samp> option, when job control is enabled,
 forces <code>wait</code> to wait for each <var>pid</var> or <var>jobspec</var> to
-terminate before returning its status, intead of returning when it changes
+terminate before returning its status, instead of returning when it changes
 status.
 If neither <var>jobspec</var> nor <var>pid</var> specifies an active child process
 of the shell, the return status is 127.
+If <code>wait</code> is interrupted by a signal, the return status will be greater
+than 128, as described above (see <a href="#Signals">Signals</a>).
+Otherwise, the return status is the exit  status
+of the last process or job waited for.
 </p>
 </dd>
 <dt id='index-disown'><span><code>disown</code><a href='#index-disown' class='copiable-anchor'> &para;</a></span></dt>
@@ -10088,7 +10106,7 @@ empty line.
 </p></dd>
 </dl>
 
-<p>(Depending on your configuration, the <tt class="key">Backspace</tt> key be set to
+<p>(Depending on your configuration, the <tt class="key">Backspace</tt> key might be set to
 delete the character to the left of the cursor and the <tt class="key">DEL</tt> key set
 to delete the character underneath the cursor, like <kbd>C-d</kbd>, rather
 than the character to the left of the cursor.)
@@ -10174,7 +10192,7 @@ Word boundaries are the same as those used by <kbd>M-f</kbd>.
 </p>
 </dd>
 <dt><span><kbd>M-<span class="key">DEL</span></kbd></span></dt>
-<dd><p>Kill from the cursor the start of the current word, or, if between
+<dd><p>Kill from the cursor to the start of the current word, or, if between
 words, to the start of the previous word.
 Word boundaries are the same as those used by <kbd>M-b</kbd>.
 </p>
@@ -10476,9 +10494,12 @@ The default limit is <code>100</code>.
 <dd><p>If set to &lsquo;<samp>on</samp>&rsquo;, Readline will convert characters with the
 eighth bit set to an <small>ASCII</small> key sequence by stripping the eighth
 bit and prefixing an <tt class="key">ESC</tt> character, converting them to a
-meta-prefixed key sequence.  The default value is &lsquo;<samp>on</samp>&rsquo;, but
+meta-prefixed key sequence.
+The default value is &lsquo;<samp>on</samp>&rsquo;, but
 will be set to &lsquo;<samp>off</samp>&rsquo; if the locale is one that contains
 eight-bit characters.
+This variable is dependent on the <code>LC_CTYPE</code> locale category, and
+may change if the locale is changed.
 </p>
 </dd>
 <dt id='index-disable_002dcompletion'><span><code>disable-completion</code><a href='#index-disable_002dcompletion' class='copiable-anchor'> &para;</a></span></dt>
@@ -10489,7 +10510,7 @@ been mapped to <code>self-insert</code>.  The default is &lsquo;<samp>off</samp>
 </dd>
 <dt id='index-echo_002dcontrol_002dcharacters'><span><code>echo-control-characters</code><a href='#index-echo_002dcontrol_002dcharacters' class='copiable-anchor'> &para;</a></span></dt>
 <dd><p>When set to &lsquo;<samp>on</samp>&rsquo;, on operating systems that indicate they support it,
-readline echoes a character corresponding to a signal generated from the
+Readline echoes a character corresponding to a signal generated from the
 keyboard.  The default is &lsquo;<samp>on</samp>&rsquo;.
 </p>
 </dd>
@@ -10590,6 +10611,8 @@ regardless of what the terminal claims it can support.  The
 default value is &lsquo;<samp>off</samp>&rsquo;, but Readline will set it to &lsquo;<samp>on</samp>&rsquo; if the 
 locale contains eight-bit characters.
 The name <code>meta-flag</code> is a synonym for this variable.
+This variable is dependent on the <code>LC_CTYPE</code> locale category, and
+may change if the locale is changed.
 </p>
 </dd>
 <dt id='index-isearch_002dterminators'><span><code>isearch-terminators</code><a href='#index-isearch_002dterminators' class='copiable-anchor'> &para;</a></span></dt>
@@ -10674,6 +10697,8 @@ eighth bit set directly rather than as a meta-prefixed escape
 sequence.
 The default is &lsquo;<samp>off</samp>&rsquo;, but Readline will set it to &lsquo;<samp>on</samp>&rsquo; if the
 locale contains eight-bit characters.
+This variable is dependent on the <code>LC_CTYPE</code> locale category, and
+may change if the locale is changed.
 </p>
 </dd>
 <dt id='index-page_002dcompletions'><span><code>page-completions</code><a href='#index-page_002dcompletions' class='copiable-anchor'> &para;</a></span></dt>
@@ -10692,7 +10717,7 @@ The default is &lsquo;<samp>off</samp>&rsquo;.
 <dd><p>If set to &lsquo;<samp>on</samp>&rsquo;, Readline will undo all changes to history lines
 before returning when <code>accept-line</code> is executed.  By default,
 history lines may be modified and retain individual undo lists across
-calls to <code>readline</code>.  The default is &lsquo;<samp>off</samp>&rsquo;.
+calls to <code>readline()</code>.  The default is &lsquo;<samp>off</samp>&rsquo;.
 </p>
 </dd>
 <dt id='index-show_002dall_002dif_002dambiguous'><span><code>show-all-if-ambiguous</code><a href='#index-show_002dall_002dif_002dambiguous' class='copiable-anchor'> &para;</a></span></dt>
@@ -10724,7 +10749,7 @@ The default value is &lsquo;<samp>off</samp>&rsquo;.
 <dt id='index-skip_002dcompleted_002dtext'><span><code>skip-completed-text</code><a href='#index-skip_002dcompleted_002dtext' class='copiable-anchor'> &para;</a></span></dt>
 <dd><p>If set to &lsquo;<samp>on</samp>&rsquo;, this alters the default completion behavior when
 inserting a single match into the line.  It&rsquo;s only active when
-performing completion in the middle of a word.  If enabled, readline
+performing completion in the middle of a word.  If enabled, Readline
 does not insert characters from the completion that match characters
 after point in the word being completed, so portions of the word
 following the cursor are not duplicated.
@@ -10786,11 +10811,11 @@ interpreted as part of the key name.
 The name of the key can be expressed in different ways, depending on
 what you find most comfortable.
 </p>
-<p>In addition to command names, readline allows keys to be bound
+<p>In addition to command names, Readline allows keys to be bound
 to a string that is inserted when the key is pressed (a <var>macro</var>).
 </p>
 <p>The <code>bind&nbsp;<span class="nolinebreak">-p</span></code><!-- /@w --> command displays Readline function names and
-bindings in a format that can put directly into an initialization file.
+bindings in a format that can be put directly into an initialization file.
 See <a href="#Bash-Builtins">Bash Builtin Commands</a>.
 </p>
 <dl compact="compact">
@@ -11806,7 +11831,7 @@ in the macro appear as if typed at the keyboard.
 </p>
 </dd>
 <dt id='index-print_002dlast_002dkbd_002dmacro-_0028_0029'><span><code>print-last-kbd-macro ()</code><a href='#index-print_002dlast_002dkbd_002dmacro-_0028_0029' class='copiable-anchor'> &para;</a></span></dt>
-<dd><p>Print the last keboard macro defined in a format suitable for the
+<dd><p>Print the last keyboard macro defined in a format suitable for the
 <var>inputrc</var> file.
 </p>
 </dd>
@@ -11869,12 +11894,12 @@ the saved position, and the old cursor position is saved as the mark.
 </dd>
 <dt id='index-character_002dsearch-_0028C_002d_005d_0029'><span><code>character-search (C-])</code><a href='#index-character_002dsearch-_0028C_002d_005d_0029' class='copiable-anchor'> &para;</a></span></dt>
 <dd><p>A character is read and point is moved to the next occurrence of that
-character.  A negative count searches for previous occurrences.
+character.  A negative argument searches for previous occurrences.
 </p>
 </dd>
 <dt id='index-character_002dsearch_002dbackward-_0028M_002dC_002d_005d_0029'><span><code>character-search-backward (M-C-])</code><a href='#index-character_002dsearch_002dbackward-_0028M_002dC_002d_005d_0029' class='copiable-anchor'> &para;</a></span></dt>
 <dd><p>A character is read and point is moved to the previous occurrence
-of that character.  A negative count searches for subsequent
+of that character.  A negative argument searches for subsequent
 occurrences.
 </p>
 </dd>
@@ -11883,7 +11908,7 @@ occurrences.
 defined for keys like Home and End.  Such sequences begin with a
 Control Sequence Indicator (CSI), usually ESC-[.  If this sequence is
 bound to &quot;\e[&quot;, keys producing such sequences will have no effect
-unless explicitly bound to a readline command, instead of inserting
+unless explicitly bound to a Readline command, instead of inserting
 stray characters into the editing buffer.  This is unbound by default,
 but usually bound to ESC-[.
 </p>
@@ -12425,6 +12450,7 @@ completions:
 <dt><span><code>-C <var>command</var></code></span></dt>
 <dd><p><var>command</var> is executed in a subshell environment, and its output is
 used as the possible completions.
+Arguments are passed as with the <samp>-F</samp> option.
 </p>
 </dd>
 <dt><span><code>-F <var>function</var></code></span></dt>
@@ -12615,7 +12641,7 @@ via <var>CDPATH</var>: Readline can&rsquo;t tell those completions are directori
 The <samp>-o nospace</samp> option tells Readline to not append a space
 character to the directory name, in case we want to append to it.
 The <samp>-o bashdefault</samp> option brings in the rest of the &quot;Bash default&quot;
-completions &ndash; possible completion that Bash adds to the default Readline
+completions &ndash; possible completions that Bash adds to the default Readline
 set.  These include things like command name completion, variable completion
 for words beginning with &lsquo;<samp>$</samp>&rsquo; or &lsquo;<samp>${</samp>&rsquo;, completions containing pathname
 expansion patterns (see <a href="#Filename-Expansion">Filename Expansion</a>), and so on.
@@ -12862,10 +12888,10 @@ the history list as a single entry.
 </dd>
 </dl>
 
-<p>When any of the <samp>-w</samp>, <samp>-r</samp>, <samp>-a</samp>, or <samp>-n</samp> options is
-used, if <var>filename</var>
-is given, then it is used as the history file.  If not, then
-the value of the <code>HISTFILE</code> variable is used.
+<p>If a <var>filename</var> argument is supplied
+when any of the <samp>-w</samp>, <samp>-r</samp>, <samp>-a</samp>, or <samp>-n</samp> options
+is used, Bash uses <var>filename</var> as the history file.
+If not, then the value of the <code>HISTFILE</code> variable is used.
 </p>
 <p>The return value is 0 unless an invalid option is encountered, an
 error occurs while reading or writing the history file, an invalid
@@ -13160,7 +13186,7 @@ substituted, or, if no previous history substitutions took place,
 the last <var>string</var>
 in a !?<var>string</var><code>[?]</code>
 search.
-If <var>new</var> is is null, each matching <var>old</var> is deleted.
+If <var>new</var> is null, each matching <var>old</var> is deleted.
 The final delimiter is optional if it is the last
 character on the input line.
 </p>
@@ -13365,7 +13391,7 @@ supply the <samp>--srcdir=PATH</samp> argument to tell <code>configure</code> wh
 source files are.  <code>configure</code> automatically checks for the
 source code in the directory that <code>configure</code> is in and in &lsquo;..&rsquo;.
 </p>
-<p>If you have to use a <code>make</code> that does not supports the <code>VPATH</code>
+<p>If you have to use a <code>make</code> that does not support the <code>VPATH</code>
 variable, you can compile Bash for one architecture at a
 time in the source code directory.  After you have installed
 Bash for one architecture, use &lsquo;<samp>make distclean</samp>&rsquo; before
@@ -13448,7 +13474,7 @@ Next: <a href="#Sharing-Defaults" accesskey="n" rel="next">Sharing Defaults</a>,
 <span id="Specifying-the-System-Type-1"></span><h3 class="section">10.5 Specifying the System Type</h3>
 
 <p>There may be some features <code>configure</code> can not figure out
-automatically, but need to determine by the type of host Bash
+automatically, but needs to determine by the type of host Bash
 will run on.  Usually <code>configure</code> can figure that
 out, but if it prints a message saying it can not guess the host
 type, give it the <samp>--host=TYPE</samp> option.  &lsquo;<samp>TYPE</samp>&rsquo; can
@@ -13588,7 +13614,7 @@ the installed version of Readline in subdirectories of that directory
 </dd>
 <dt><span><code>--with-libintl-prefix[=<var>PREFIX</var>]</code></span></dt>
 <dd><p>Define this to make Bash link with a locally-installed version of the
-libintl library instead ofthe version in <samp>lib/intl</samp>.
+libintl library instead of the version in <samp>lib/intl</samp>.
 </p>
 </dd>
 <dt><span><code>--with-libiconv-prefix[=<var>PREFIX</var>]</code></span></dt>
@@ -14201,7 +14227,7 @@ The <code>ERR</code> trap is not inherited by shell functions unless the
 <p>The <code>trap</code> builtin (see <a href="#Bourne-Shell-Builtins">Bourne Shell Builtins</a>) allows a
 <code>RETURN</code> pseudo-signal specification, similar to
 <code>EXIT</code> and <code>DEBUG</code>.
-Commands specified with an <code>RETURN</code> trap are executed before
+Commands specified with a <code>RETURN</code> trap are executed before
 execution resumes after a shell function or a shell script executed with
 <code>.</code> or <code>source</code> returns.
 The <code>RETURN</code> trap is not inherited by shell functions unless the
