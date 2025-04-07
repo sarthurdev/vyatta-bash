@@ -132,8 +132,8 @@ optimize_connection_fork (command)
   if (command->type == cm_connection &&
       (command->value.Connection->connector == AND_AND || command->value.Connection->connector == OR_OR || command->value.Connection->connector == ';') &&
       (command->value.Connection->second->flags & CMD_TRY_OPTIMIZING) &&
-      ((startup_state == 2 && should_suppress_fork (command->value.Connection->second)) ||
-       ((subshell_environment & SUBSHELL_PAREN) && should_optimize_fork (command->value.Connection->second, 0))))
+      (should_suppress_fork (command->value.Connection->second) ||
+      ((subshell_environment & SUBSHELL_PAREN) && should_optimize_fork (command->value.Connection->second, 0))))
     {
       command->value.Connection->second->flags |= CMD_NO_FORK;
       command->value.Connection->second->value.Simple->flags |= CMD_NO_FORK;
@@ -290,6 +290,7 @@ parse_prologue (string, flags, tag)
    	(flags & SEVAL_NOFREE) -> don't free STRING when finished
    	(flags & SEVAL_RESETLINE) -> reset line_number to 1
    	(flags & SEVAL_NOHISTEXP) -> history_expansion_inhibited -> 1
+   	(flags & SEVAL_NOOPTIMIZE) -> don't try to turn on optimizing flags
 */
 
 int
@@ -431,6 +432,8 @@ parse_and_execute (string, from_file, flags)
 
       if (parse_command () == 0)
 	{
+	  int local_expalias, local_alflag;
+
 	  if ((flags & SEVAL_PARSEONLY) || (interactive_shell == 0 && read_but_dont_execute))
 	    {
 	      last_result = EXECUTION_SUCCESS;
@@ -500,12 +503,27 @@ parse_and_execute (string, from_file, flags)
 		 if we are at the end of the command string, the last in a
 		 series of connection commands is
 		 command->value.Connection->second. */
-	      else if (command->type == cm_connection && can_optimize_connection (command))
+	      else if (command->type == cm_connection &&
+		       (flags & SEVAL_NOOPTIMIZE) == 0 &&
+		       can_optimize_connection (command))
 		{
 		  command->value.Connection->second->flags |= CMD_TRY_OPTIMIZING;
 		  command->value.Connection->second->value.Simple->flags |= CMD_TRY_OPTIMIZING;
 		}
 #endif /* ONESHOT */
+
+	      /* We play tricks in the parser and command_substitute() turning
+		 expand_aliases on and off depending on which parsing pass and
+		 whether or not we're in posix mode. This only matters for
+		 parsing, and we let the higher layers deal with that. We just
+		 want to ensure that expand_aliases is set to the appropriate
+		 global value when we go to execute this command, so we save
+		 and restore it around the execution (we don't restore it if
+		 the global value of the flag (expaliases_flag) changes). */
+	      local_expalias = expand_aliases;
+	      local_alflag = expaliases_flag;
+	      if (subshell_environment & SUBSHELL_COMSUB)
+		expand_aliases = expaliases_flag;
 
 	      /* See if this is a candidate for $( <file ). */
 	      if (startup_state == 2 &&
@@ -523,6 +541,10 @@ parse_and_execute (string, from_file, flags)
 	      dispose_command (command);
 	      dispose_fd_bitmap (bitmap);
 	      discard_unwind_frame ("pe_dispose");
+
+	      /* If the global value didn't change, we restore what we had. */
+	      if ((subshell_environment & SUBSHELL_COMSUB) && local_alflag == expaliases_flag)
+		expand_aliases = local_expalias;
 
 	      if (flags & SEVAL_ONECMD)
 		{
