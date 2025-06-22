@@ -1446,42 +1446,44 @@ find_cmd_start (start)
   /* Flags == SD_NOJMP only because we want to skip over command substitutions
      in assignment statements.  Have to test whether this affects `standalone'
      command substitutions as individual words. */
-  while (((s = skip_to_delim (rl_line_buffer, os, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/)) <= start) &&
-	 rl_line_buffer[s])
+  if (!in_vyatta_restricted_mode(OUTPUT)) {
+    while (((s = skip_to_delim (rl_line_buffer, os, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/)) <= start) &&
+    rl_line_buffer[s])
+      {
+        /* Handle >| token crudely; treat as > not | */
+        if (s > 0 && rl_line_buffer[s] == '|' && rl_line_buffer[s-1] == '>')
     {
-      /* Handle >| token crudely; treat as > not | */
-      if (s > 0 && rl_line_buffer[s] == '|' && rl_line_buffer[s-1] == '>')
-	{
-	  ns = skip_to_delim (rl_line_buffer, s+1, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/);
-	  if (ns > start || rl_line_buffer[ns] == 0)
-	    return os;
-	  os = ns+1;
-	  continue;
-	}
-      /* The only reserved word in COMMAND_SEPARATORS is `{', so handle that
-	 specially, making sure it's in a spot acceptable for reserved words */
-      if (s >= os && rl_line_buffer[s] == '{')
-	{
-	  int pc, nc;	/* index of previous non-whitespace, next char */
-	  for (pc = (s > os) ? s - 1 : os; pc > os && whitespace(rl_line_buffer[pc]); pc--)
-	    ;
-	  nc = rl_line_buffer[s+1];
-	  /* must be preceded by a command separator or be the first non-
-	     whitespace character since the last command separator, and
-	     followed by a shell break character (not another `{') to be a reserved word. */
-	  if ((pc > os && (rl_line_buffer[s-1] == '{' || strchr (COMMAND_SEPARATORS, rl_line_buffer[pc]) == 0)) ||
-	      (shellbreak(nc) == 0))	/* }} */
-	    {
-	      /* Not a reserved word, look for another delim */
-	      ns = skip_to_delim (rl_line_buffer, s+1, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/);
-	      if (ns > start || rl_line_buffer[ns] == 0)
-		return os;
-	      os = ns+1;
-	      continue;
-	    }
-	}
-      os = s+1;
+      ns = skip_to_delim (rl_line_buffer, s+1, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/);
+      if (ns > start || rl_line_buffer[ns] == 0)
+        return os;
+      os = ns+1;
+      continue;
     }
+        /* The only reserved word in COMMAND_SEPARATORS is `{', so handle that
+    specially, making sure it's in a spot acceptable for reserved words */
+        if (s >= os && rl_line_buffer[s] == '{')
+    {
+      int pc, nc;	/* index of previous non-whitespace, next char */
+      for (pc = (s > os) ? s - 1 : os; pc > os && whitespace(rl_line_buffer[pc]); pc--)
+        ;
+      nc = rl_line_buffer[s+1];
+      /* must be preceded by a command separator or be the first non-
+        whitespace character since the last command separator, and
+        followed by a shell break character (not another `{') to be a reserved word. */
+      if ((pc > os && (rl_line_buffer[s-1] == '{' || strchr (COMMAND_SEPARATORS, rl_line_buffer[pc]) == 0)) ||
+          (shellbreak(nc) == 0))	/* }} */
+        {
+          /* Not a reserved word, look for another delim */
+          ns = skip_to_delim (rl_line_buffer, s+1, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE/*|SD_NOSKIPCMD*/);
+          if (ns > start || rl_line_buffer[ns] == 0)
+      return os;
+          os = ns+1;
+          continue;
+        }
+    }
+        os = s+1;
+      }
+  }
   return os;
 }
 
@@ -1491,7 +1493,11 @@ find_cmd_end (end)
 {
   register int e;
 
-  e = skip_to_delim (rl_line_buffer, end, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE);
+  if (!in_vyatta_restricted_mode(OUTPUT)) {
+    e = skip_to_delim (rl_line_buffer, end, COMMAND_SEPARATORS, SD_NOJMP|SD_COMPLETE);
+  } else {
+    e = strlen(rl_line_buffer);
+  }
   return e;
 }
 
@@ -1624,7 +1630,9 @@ attempt_shell_completion (text, start, end)
     }
   else if (member (rl_line_buffer[ti], command_separator_chars))
     {
-      in_command_position++;
+      if (!in_vyatta_restricted_mode(OUTPUT)) {
+        in_command_position++;
+      }
 
       if (check_redir (ti) == 1)
 	in_command_position = -1;	/* sentinel that we're not the first word on the line */
@@ -1654,6 +1662,7 @@ attempt_shell_completion (text, start, end)
      succeed.  Don't bother if readline found a single quote and we are
      completing on the substring.  */
   if (*text == '`' && rl_completion_quote_character != '\'' &&
+  !in_vyatta_restricted_mode(OUTPUT) &&
 	(in_command_position > 0 || (unclosed_pair (rl_line_buffer, start, "`") &&
 				     unclosed_pair (rl_line_buffer, end, "`"))))
     matches = rl_completion_matches (text, command_subst_completion_function);
@@ -1663,7 +1672,7 @@ attempt_shell_completion (text, start, end)
   have_progcomps = prog_completion_enabled && (progcomp_size () > 0);
   iw_compspec = progcomp_search (INITIALWORD);
   if (matches == 0 &&
-      (in_command_position == 0 || text[0] == '\0' || (in_command_position > 0 && iw_compspec)) &&
+      (in_vyatta_restricted_mode(OUTPUT) || in_command_position == 0 || text[0] == '\0' || (in_command_position > 0 && iw_compspec)) &&
       current_prompt_string == ps1_prompt)
     {
       int s, e, s1, e1, os, foundcs;
@@ -1727,7 +1736,7 @@ attempt_shell_completion (text, start, end)
 	  foundcs = 0;
 	  in_command_position = s == start && STREQ (n, text);	/* XXX */
 	}
-      else if (e > s && was_assignment == 0 && have_progcomps)
+      else if ((e > s || (in_vyatta_restricted_mode(OUTPUT) && strcmp(n, text) == 0)) && was_assignment == 0 && have_progcomps)
 	{
 	  prog_complete_matches = programmable_completions (n, text, s, e, &foundcs);
 	  /* command completion if programmable completion fails */
@@ -1801,6 +1810,11 @@ bash_default_completion (text, start, end, qc, compflags)
   char **matches, *t;
 
   matches = (char **)NULL;
+
+  if (in_vyatta_restricted_mode(OUTPUT)) {
+    rl_ignore_some_completions_function = bash_ignore_everything;
+    return matches;
+  }
 
   /* New posix-style command substitution or variable name? */
   if (*text == '$')

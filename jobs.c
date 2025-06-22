@@ -3906,6 +3906,7 @@ itrace("waitchld: waitpid returns %d block = %d children_exited = %d", pid, bloc
 
       if (PEXITED (child))
 	{
+    log_process_exit (child);
 	  js.c_totreaped++;
 	  if (job != NO_JOB)
 	    js.c_reaped++;

@@ -45,6 +45,8 @@
 
 #include "xmalloc.h"
 
+#include "vyatta-restricted.h"
+
 /* NULL pointer type. */
 #if !defined (NULL)
 #  if defined (__STDC__)

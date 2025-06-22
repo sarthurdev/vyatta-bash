@@ -5728,7 +5728,7 @@ execute_disk_command (words, redirects, command_line, pipe_in, pipe_out,
 	    {
 	      /* Make sure filenames are displayed using printable characters */
 	      pathname = printable_filename (pathname, 0);
-	      internal_error (_("%s: command not found"), pathname);
+	      invalid_cmd (_("\n  Invalid command: [%s]\n"), pathname);
 	      exit (EX_NOTFOUND);	/* Posix.2 says the exit status is 127 */
 	    }
 

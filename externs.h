@@ -100,6 +100,9 @@ extern int pretty_print_loop PARAMS((void));
 extern int parse_command PARAMS((void));
 extern int read_command PARAMS((void));
 
+/* Functions from logging.c */
+extern void initialize_logging PARAMS((void));
+
 /* Functions from braces.c. */
 #if defined (BRACE_EXPANSION)
 extern char **brace_expand PARAMS((char *));

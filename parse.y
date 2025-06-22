@@ -2331,6 +2331,10 @@ shell_getc (remove_quoted_newline)
   int c, truncating, last_was_backslash;
   unsigned char uc;
 
+  char *history_buf = NULL;
+  int history_index = 0;
+  int history_start = 0;
+
   QUIT;
 
   last_was_backslash = 0;
@@ -2403,6 +2407,7 @@ shell_getc (remove_quoted_newline)
       if (bash_input.type == st_stream)
 	clearerr (stdin);
 
+	  int no_escape = 0;
       while (1)
 	{
 	  c = yy_getc ();
@@ -2462,6 +2467,53 @@ shell_getc (remove_quoted_newline)
 	      break;
 	    }
 
+		//need to fix terminating special character ';'
+		//vyatta
+		if (interactive && 
+		    shell_input_line) {
+
+      char *string = shell_input_line;
+
+      while (*string && (whitespace (*string) || *string == '\n'))
+        string++;
+
+      int pos = string - shell_input_line;
+
+      //find where string starts (skipping whitespace)
+      if (strncmp(&shell_input_line[pos],"set ",4) == 0 ||
+      strncmp(&shell_input_line[pos],"delete ",7) == 0) {
+        if (c == '"' || c == '\'') {
+      //this suppresses a quoted string
+      if (no_escape == 1) {
+        no_escape = 0;
+      }
+      else {
+        no_escape = 1;
+      }
+        }
+        else if ((c == ';' ||
+        c == '&' ||
+        c == '(' ||
+        c == ')' ||
+        c == '>' ||
+        c == '<' ||
+        c == '|' ||
+        c == '`') &&
+          shell_input_line[i-1] != '\\') {
+      if (no_escape == 0) {
+        shell_input_line[i++] = '\\';
+        
+        history_buf = realloc(history_buf,i+1);
+        register int j;
+        for (j = history_start; j < i-1; ++j) {
+        history_buf[history_index++] = shell_input_line[j];
+        }
+        history_start = i;
+      }
+        }
+      }
+		}
+
 	  if (truncating == 0 || c == '\n')
 	    shell_input_line[i++] = c;
 
@@ -2497,11 +2549,28 @@ shell_getc (remove_quoted_newline)
 #  endif
 	  /* Calling with a third argument of 1 allows remember_on_history to
 	     determine whether or not the line is saved to the history list */
-	  expansions = pre_process_line (shell_input_line, 1, 1);
+	  // expansions = pre_process_line (shell_input_line, 1, 1);
+    //vyatta
+	  int flag = 0;
+	  if (history_index > 0) {
+	    history_buf = realloc(history_buf,i+1);
+	    register int j;
+	    for (j = history_start; j < i; ++j) {
+	      history_buf[history_index++] = shell_input_line[j];
+	    }
+	    history_buf[history_index] = '\0';
+	    expansions = pre_process_line (history_buf, 1, 1);
+	    flag = expansions != history_buf;
+	    free(history_buf);
+	  }
+	  else {
+	    expansions = pre_process_line (shell_input_line, 1, 1);
+	    flag = expansions != shell_input_line;
+	  }
 #  if defined (BANG_HISTORY)
 	  history_quoting_state = 0;
 #  endif
-	  if (expansions != shell_input_line)
+	  if (flag)
 	    {
 	      free (shell_input_line);
 	      shell_input_line = expansions;
@@ -5351,7 +5420,7 @@ got_token:
     case CASE:
     case SELECT:
     case FOR:
-      if (word_top < MAX_CASE_NEST)
+      if (word_top + 1 < MAX_CASE_NEST)
 	word_top++;
       word_lineno[word_top] = line_number;
       expecting_in_token++;
@@ -6354,8 +6423,14 @@ handle_eof_input_unit ()
 	{
 	  if (eof_encountered < eof_encountered_limit)
 	    {
-	      fprintf (stderr, _("Use \"%s\" to leave the shell.\n"),
+        char *vyatta_configure_mode = getenv ( "_OFR_CONFIGURE" );
+        if (*vyatta_configure_mode != NULL) {
+          fprintf (stderr, _("Use \"%s\" to leave configuration mode.\n"),
+           login_shell ? "logout" : "exit");
+        } else {
+          fprintf (stderr, _("Use \"%s\" to leave the shell.\n"),
 		       login_shell ? "logout" : "exit");
+        }
 	      eof_encountered++;
 	      /* Reset the parsing state. */
 	      last_read_token = current_token = '\n';
