@@ -57,15 +57,9 @@ with_installed_rl = no
 
 debflags =
 
-p	= bash
-p_stat	= bash-static
-p_bins	= bash-builtins
-p_doc	= bash-doc
+p	= vyatta-bash
 
 d	= debian/$(p)
-d_stat	= debian/$(p_stat)
-d_bins	= debian/$(p_bins)
-d_doc	= debian/$(p_doc)
 
 termcap_lib := $(if $(wildcard /usr/lib/libtinfo.so /usr/lib/$(DEB_HOST_MULTIARCH)/libtinfo.so), \
 		 -ltinfo, \
@@ -86,11 +80,8 @@ else
     conf_args += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-static_conf_args := $(conf_args) \
-	--enable-static-link \
-
 #build: bash-build static-build check
-build: stamps/before-build bash-build static-build check
+build: stamps/before-build bash-build check
 build-arch: build
 build-indep: build
 
@@ -121,31 +112,6 @@ bash-configure: stamps/before-build
 	    bash_src=. \
 	    build=bash \
 	    configure_args="$(conf_args)"
-
-# ---------------------------------------------------------------------------
-# build static bash
-
-static-build:
-	$(MAKE) -f debian/rules do-build-static \
-	    bash_src=. \
-	    build=static \
-	    configure_args="$(static_conf_args)"
-static-configure: stamps/before-build
-	$(MAKE) -f debian/rules do-configure-static \
-	    bash_src=. \
-	    build=static \
-	    configure_args="$(static_conf_args)"
-
-# ---------------------------------------------------------------------------
-
-bash-doc-build: stamps/stamp-build-bash-doc
-stamps/stamp-build-bash-doc:
-	rm -fr doc/bash.info doc/bash.pdf doc/bash.html doc/bashref.info doc/bashref.pdf doc/bashref.html
-	$(MAKE) -C build-bash/doc info html MAN2HTML=/usr/bin/man2html
-	$(MAKE) -C build-bash/doc bash.pdf bashref.pdf
-	touch stamps/stamp-build-bash-doc
-
-# ---------------------------------------------------------------------------
 
 check: stamps/stamp-check
 stamps/stamp-check: bash-build
@@ -184,118 +150,25 @@ bash-install: bash-build stamps/stamp-install-bash
 stamps/stamp-install-bash: stamps/before-build stamps/stamp-build-bash
 	dh_testdir
 	dh_testroot
-	dh_prep -p$(p) -p$(p_doc) -p$(p_bins)
+	dh_prep -p$(p)
 	dh_installdirs -p$(p) \
-		usr/bin \
-		etc/skel \
-		usr/share/doc/$(p)
-	dh_installdirs -p$(p_doc) \
-		usr/share/doc/$(p)
-	dh_installdirs -p$(p_bins) \
-		usr/share/doc/$(p)/examples/loadables
-
-ifeq ($(with_gfdl),yes)
-# XXXXX
-#	cp -p build-bash/doc/*.info bash/doc/
-endif
+		bin
 
 	: # install it
 	$(MAKE) -C build-bash install \
 		YACC="$(YACC)" \
 		DESTDIR=$(CURDIR)/$(d)
-	chmod 755 $(d)/usr/bin/bashbug
-	$(ID) debian/bashbug.1 $(d)/usr/share/man/man1/
-ifneq ($(with_gfdl),yes)
-	mkdir -p $(d)/usr/share/man/man1
-	cp -p bash/doc/bash.1 $(d)/usr/share/man/man1/bash.1
-endif
-	rm -f $(d)/usr/share/doc/bash/*.html
-	rm -f $(d)/usr/share/info/*.info
-	rm -f $(d)/usr/share/info/dir*
 
-	: # extra links
-	ln -sf bash $(d)/usr/bin/rbash
-
-	: # skeleton files
-	$(ID) debian/etc.bash.bashrc $(d)/etc/bash.bashrc
-	$(ID) debian/skel.bashrc $(d)/etc/skel/.bashrc
-	$(ID) debian/skel.profile $(d)/etc/skel/.profile
-	$(ID) debian/skel.bash_logout $(d)/etc/skel/.bash_logout
-
-	: # clean_console
-ifneq (,$(findstring $(DEB_HOST_ARCH_OS), linux freebsd))
-	$(IX) clear_console $(d)/usr/bin/
-	$(ID) debian/clear_console.1 $(d)/usr/share/man/man1/
-endif
+	mv $(d)/usr/bin/vbash $(d)/bin/.
+	rmdir $(d)/usr/bin
 
 	: # /etc/shells integration
-	$(ID) -D debian/shells.d/bash $(d)/usr/share/debianutils/shells.d/bash
-
-	: # files for the bash-doc package
-
-	dh_installexamples -p$(p_doc) examples/*
-	rm -rf $(d_doc)/usr/share/doc/$(p)/examples/loadables
-	mkdir -p $(d_doc)/usr/share/doc/$(p_doc)
-	ln -sf ../$(p)/examples $(d_doc)/usr/share/doc/$(p_doc)/examples
-
-	rm -rf $(d_doc)/usr/share/doc/$(p)/examples/obashdb
-	cd $(d_doc)/usr/share/doc/$(p)/examples && chmod 755 \
-		misc/aliasconv.*sh misc/cshtobash
-
-	cd $(d_doc)/usr/share/doc/$(p)/examples && chmod 644 \
-		scripts/shprompt
-
-	: # files for the bash-builtins package
-	mv $(d)/usr/include $(d_bins)/usr/.
-	mv $(d)/usr/lib $(d_bins)/usr/.
-	$(ID) examples/loadables/{README,*.c} \
-		$(d_bins)/usr/share/doc/$(p)/examples/loadables
-	$(ID) build-bash/examples/loadables/Makefile \
-		$(d_bins)/usr/share/doc/$(p)/examples/loadables
-	ln -sf bash $(d_bins)/usr/share/doc/$(p_bins)
-
-	sed -i \
-		-e 's@-ffile-prefix-map=[^ ]*[ ]*@@g' \
-		-e 's@-fdebug-prefix-map=[^ ]*[ ]*@@g' \
-		-e 's@^BUILD_DIR =.*@BUILD_DIR = /path/to/build-dir@' \
-		$(d)/usr/bin/bashbug \
-		$(d_bins)/usr/lib/bash/Makefile.inc \
-		$(d_bins)/usr/share/doc/$(p)/examples/loadables/Makefile
+	$(ID) -D debian/shells.d/bash $(d)/usr/share/debianutils/shells.d/vbash
 
 #	cat debian/README stamps/stamp-patch > debian/README.Debian
 	cat debian/README > debian/README.Debian
 
 	touch stamps/stamp-install-bash
-
-binary-doc: bash-install bash-doc-build
-	dh_testdir
-	dh_testroot
-	mkdir -p $(d_doc)/usr/share/doc/$(p)
-ifeq ($(with_gfdl),yes)
-	dh_installdocs -p$(p_doc) 
-	cp -p build-bash/doc/bashref.{html,pdf} $(d_doc)/usr/share/doc/$(p)/.
-	mkdir -p $(d_doc)/usr/share/info
-	cp -p build-bash/doc/bash.info $(d_doc)/usr/share/info/.
-	dh_link -p$(p_doc) \
-	    /usr/share/doc/$(p)/bashref.html /usr/share/doc/$(p_doc)/bashref.html \
-	    /usr/share/doc/$(p)/bashref.pdf /usr/share/doc/$(p_doc)/bashref.pdf
-else
-	dh_installdocs -p$(p_doc) -X.doc-base
-	rm -f $(d_doc)/usr/share/doc-base/bashref
-endif
-	rm -f $(d_doc)/usr/share/info/dir*
-	cp -p build-bash/doc/bash.html build-bash/doc/bash.pdf \
-	    $(d_doc)/usr/share/doc/$(p)/
-	dh_link -p$(p_doc) \
-	    /usr/share/doc/$(p)/bash.html /usr/share/doc/$(p_doc)/bash.html \
-	    /usr/share/doc/$(p)/bash.pdf /usr/share/doc/$(p_doc)/bash.pdf
-	dh_installchangelogs -p$(p_doc) CWRU/changelog
-	dh_compress -p$(p_doc) -Xexamples -X.pdf
-	dh_fixperms -p$(p_doc)
-	dh_installdeb -p$(p_doc)
-	dh_gencontrol -p$(p_doc)
-	dh_md5sums -p$(p_doc)
-	dh_builddeb -p$(p_doc)
 
 binary-bash: bash-install
 	dh_testdir
@@ -305,61 +178,22 @@ binary-bash: bash-install
 		CHANGES NEWS COMPAT doc/INTRO POSIX \
 		debian/{README.Debian,README.abs-guide,README.commands} \
 		debian/inputrc.arrows
-	install -D -m 644 debian/bash.overrides \
-		debian/bash/usr/share/lintian/overrides/bash
-	install -D -m 644 debian/bash-builtins.overrides \
-		debian/bash-builtins/usr/share/lintian/overrides/bash-builtins
-	dh_installman -p$(p) doc/rbash.1 debian/bash-builtins.7
 	dh_installmenu -p$(p)
 	dh_strip -p$(p)
 	dh_compress -p$(p)
 	dh_fixperms -p$(p)
-	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/usr/bin/bash
+	dh_shlibdeps -p$(p) -- -dPre-Depends $(d)/bin/vbash
 	dh_installdeb -p$(p)
-	dh_gencontrol -p$(p)
+	if [ -f "../.VYOS_DEV_BUILD" ]; then \
+		dh_gencontrol -p$(p) -- -v999.dev; \
+	else \
+		dh_gencontrol -p$(p); \
+	fi
 	dh_md5sums -p$(p)
 	dh_builddeb -p$(p)
 
-# Even though it contains only headers and example files,
-# bash-builtins is NOT arch-independent because the config.h* files
-# differ on different archs.
-binary-builtins: bash-install
-	dh_testdir
-	dh_testroot
-	dh_strip -p$(p_bins)
-	dh_compress -p$(p_bins) -Xexamples
-	dh_fixperms -p$(p_bins)
-	dh_installdeb -p$(p_bins)
-	dh_gencontrol -p$(p_bins)
-	dh_md5sums -p$(p_bins)
-	dh_builddeb -p$(p_bins)
-
-binary-static: static-build
-	dh_testdir
-	dh_testroot
-	dh_prep -p$(p_stat)
-	dh_installdirs -p$(p_stat) \
-		usr/bin \
-		usr/share/man/man1
-	cp -p build-static/bash $(d_stat)/usr/bin/bash-static
-	cp -p doc/bash.1 $(d_stat)/usr/share/man/man1/bash-static.1
-	$(ID) -D debian/shells.d/bash-static $(d_stat)/usr/share/debianutils/shells.d/bash-static
-	dh_installdocs -p$(p_stat)
-	dh_installchangelogs -p$(p_stat)
-	install -D -m 644 debian/bash-static.overrides \
-		debian/bash-static/usr/share/lintian/overrides/bash-static
-	dh_strip -p$(p_stat)
-	dh_compress -p$(p_stat)
-	dh_fixperms -p$(p_stat)
-	dh_installdeb -p$(p_stat)
-	dh_gencontrol -p$(p_stat) -- \
-		'-Vglibc:Source=$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libc-bin)'
-	dh_md5sums -p$(p_stat)
-	dh_builddeb -p$(p_stat)
-
-binary-indep: binary-doc
-binary-arch: binary-bash binary-builtins binary-static
-binary:	binary-indep binary-arch
+binary-arch: binary-bash
+binary:	binary-arch
 
 # ---------------------------------------------------------------------------
 # common rules for all bash build variations
@@ -441,11 +275,11 @@ remove-non-dfsg-files:
 	rm -f doc/rose94.*
 
 .NOTPARALLEL: build
-.PHONY: unpack binary binary-arch binary-indep clean \
-    build bash-build static-build \
+.PHONY: unpack binary binary-arch clean \
+    build bash-build \
     check \
-    bash-configure static-configure \
-    binary-doc binary-bash binary-builtins binary-static \
+    bash-configure \
+    binary-bash \
     install bash-install
 
 # Local Variables:

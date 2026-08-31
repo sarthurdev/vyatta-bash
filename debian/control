@@ -1,29 +1,23 @@
-Source: bash
+Source: vyatta-bash
 Section: base
-Priority: required
-Maintainer: Matthias Klose <doko@debian.org>
-Standards-Version: 4.6.2
+Priority: optional
+Maintainer: VyOS Package Maintainers <maintainers@vyos.net>
+Standards-Version: 4.7.2
 Build-Depends: autoconf, autotools-dev, bison, libncurses5-dev,
  texinfo, texi2html, debhelper (>= 11), gettext, sharutils,
  locales <!nocheck>, time <!nocheck>,
  xz-utils,
 Build-Depends-Indep: texlive-latex-base, ghostscript, texlive-fonts-recommended, man2html-base
 Build-Conflicts: r-base-core
-Homepage: http://tiswww.case.edu/php/chet/bash/bashtop.html
-Vcs-Browser: https://code.launchpad.net/~doko/+junk/pkg-bash-debian
-Vcs-Bzr: http://bazaar.launchpad.net/~doko/+junk/pkg-bash-debian
 Rules-Requires-Root: binary-targets
 
-Package: bash
+Package: vyatta-bash
 Architecture: any
 Multi-Arch: foreign
 Pre-Depends: ${shlibs:Pre-Depends}, ${misc:Depends}
 Depends: base-files (>= 2.1.12), debianutils (>= 5.6-0.1)
-Recommends: bash-completion
-Suggests: bash-doc
-Essential: yes
 Section: shells
-Priority: required
+Priority: optional
 Description: GNU Bourne Again SHell
  Bash is an sh-compatible command language interpreter that executes
  commands read from the standard input or from a file.  Bash also
@@ -34,41 +28,3 @@ Description: GNU Bourne Again SHell
  .
  The Programmable Completion Code, by Ian Macdonald, is now found in
  the bash-completion package.
-
-Package: bash-static
-Architecture: any
-Multi-Arch: foreign
-Depends: passwd (>= 1:4.0.3-10), debianutils (>= 5.6-0.1), ${misc:Depends}
-Suggests: bash-doc
-Section: shells
-Priority: optional
-Built-Using: ${glibc:Source}
-Description: GNU Bourne Again SHell (static version)
- Bash is an sh-compatible command language interpreter that executes
- commands read from the standard input or from a file.  Bash also
- incorporates useful features from the Korn and C shells (ksh and csh).
- .
- Statically linked.
-
-Package: bash-builtins
-Architecture: any
-Depends: bash (= ${binary:Version}), ${misc:Depends}
-Section: utils
-Priority: optional
-Description: Bash loadable builtins - headers & examples
- Bash can dynamically load new builtin commands.  Included are the
- necessary headers to compile your own builtins and lots of examples.
-
-Package: bash-doc
-Architecture: all
-Depends: ${misc:Depends}
-Section: doc
-Priority: optional
-Replaces: bash (<< 4.3-2)
-Description: Documentation and examples for the GNU Bourne Again SHell
- Bash is an sh-compatible command language interpreter that executes
- commands read from the standard input or from a file.  Bash also
- incorporates useful features from the Korn and C shells (ksh and csh).
- .
- This package contains the distributable documentation, all the
- examples and the main changelog.
